@@ -61,12 +61,10 @@ export class ConnectedMotionGroup {
     // This is used to determine if the robot is virtual or physical
     let isVirtual = false
     try {
-      const virtualModeRes =
+      const opMode =
         await nova.api.virtualRobotMode.getOperationMode(controllerId)
 
-      if (virtualModeRes.status === 200) {
-        isVirtual = true
-      }
+      if (opMode) isVirtual = true
     } catch (err) {
       if (err instanceof AxiosError) {
         console.log(
@@ -78,8 +76,7 @@ export class ConnectedMotionGroup {
     }
 
     // Find out what TCPs this motion group has (we need it for jogging)
-    const tcpOptionsRes =
-      await nova.api.motionGroupInfos.listTcps(motionGroupId)
+    const { tcps } = await nova.api.motionGroupInfos.listTcps(motionGroupId)
 
     const motionGroupSpecification =
       await nova.api.motionGroupInfos.getMotionGroupSpecification(motionGroupId)
@@ -91,8 +88,8 @@ export class ConnectedMotionGroup {
       initialMotionState,
       motionStateSocket,
       isVirtual,
-      tcpOptionsRes.data.tcps!,
-      motionGroupSpecification.data,
+      tcps!,
+      motionGroupSpecification,
     )
   }
 

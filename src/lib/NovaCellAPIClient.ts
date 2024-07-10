@@ -25,8 +25,13 @@ import type { BaseAPI } from "@wandelbots/wandelbots-api-client/base"
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
   ? (...args: P) => R
   : never
+
+type UnwrapAxiosResponseReturn<T extends (...a: any) => any> = (
+  ...a: Parameters<T>
+) => Promise<Awaited<ReturnType<T>>["data"]>
+
 export type WithCellId<T> = {
-  [P in keyof T]: OmitFirstArg<T[P]>
+  [P in keyof T]: UnwrapAxiosResponseReturn<OmitFirstArg<T[P]>>
 }
 
 /**
@@ -41,7 +46,8 @@ export class NovaCellAPIClient {
 
   /**
    * Some TypeScript sorcery which alters the API class methods so you don't
-   * have to pass the cell id to every single one
+   * have to pass the cell id to every single one, and de-encapsulates the
+   * response data
    */
   private withCellId<T extends BaseAPI>(
     ApiConstructor: new (config: Configuration) => T,
@@ -53,8 +59,12 @@ export class NovaCellAPIClient {
     for (const key of Reflect.ownKeys(Reflect.getPrototypeOf(apiClient)!)) {
       if (key !== "constructor" && typeof apiClient[key] === "function") {
         const originalFunction = apiClient[key]
-        apiClient[key] = (...args: any[]) => {
-          return originalFunction.apply(apiClient, [this.cellId, ...args])
+        apiClient[key] = async (...args: any[]) => {
+          const res = await originalFunction.apply(apiClient, [
+            this.cellId,
+            ...args,
+          ])
+          return res.data
         }
       }
     }
