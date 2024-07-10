@@ -7,7 +7,7 @@ import type {
   RobotTcp,
 } from "@wandelbots/wandelbots-api-client"
 import { AutoReconnectingWebsocket } from "./util/AutoReconnectingWebsocket"
-import { NovaClient } from "./NovaClient"
+import { NovaClient } from "../NovaClient"
 import { AxiosError } from "axios"
 
 export type MotionGroupOption = {

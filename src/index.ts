@@ -1,1 +1,2 @@
-export { NovaClient } from "./NovaClient"
+export * from "./NovaClient"
+export * from "@wandelbots/wandelbots-api-client"

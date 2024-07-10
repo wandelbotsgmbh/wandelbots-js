@@ -16,7 +16,7 @@
   "scripts": {
     "tsc": "tsc --pretty --noEmit",
     "build": "tsup src/index.ts --format esm,cjs --clean --dts",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "repository": {
     "type": "git",

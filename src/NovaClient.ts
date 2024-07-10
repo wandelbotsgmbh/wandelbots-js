@@ -1,6 +1,6 @@
 import type { Configuration } from "@wandelbots/wandelbots-api-client"
-import { ConnectedMotionGroup } from "./ConnectedMotionGroup"
-import { NovaCellAPIClient } from "./NovaCellAPIClient"
+import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
+import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
 
 export type NovaClientConfig = {
   /**

@@ -1,5 +1,6 @@
 import * as _wandelbots_wandelbots_api_client from '@wandelbots/wandelbots-api-client';
 import { ControllerInstance, MotionGroupPhysical, MotionGroupState, RobotTcp, MotionGroupSpecification, Configuration, DeviceConfigurationApi, MotionGroupApi, MotionGroupInfosApi, ControllerApi, ProgramApi, ProgramValuesApi, ControllerIOsApi, MotionGroupKinematicApi, MotionApi, CoordinateSystemsApi, MotionGroupJoggingApi, VirtualRobotApi, VirtualRobotSetupApi, VirtualRobotModeApi, VirtualRobotBehaviorApi, LibraryProgramMetadataApi, LibraryProgramApi, LibraryRecipeMetadataApi, LibraryRecipeApi } from '@wandelbots/wandelbots-api-client';
+export * from '@wandelbots/wandelbots-api-client';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
 declare class AutoReconnectingWebsocket extends ReconnectingWebSocket {

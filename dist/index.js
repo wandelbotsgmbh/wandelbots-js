@@ -10800,7 +10800,7 @@ __export(src_exports, {
 });
 module.exports = __toCommonJS(src_exports);
 
-// src/util/converters.ts
+// src/lib/util/converters.ts
 function tryParseJson(json) {
   try {
     return JSON.parse(json);
@@ -10809,10 +10809,10 @@ function tryParseJson(json) {
   }
 }
 
-// src/util/AutoReconnectingWebsocket.ts
+// src/lib/util/AutoReconnectingWebsocket.ts
 var import_reconnecting_websocket = __toESM(require("reconnecting-websocket"));
 
-// src/util/websocket.ts
+// src/lib/util/websocket.ts
 function makeURLForWebSocket(path, user, password) {
   const url2 = new URL(path, location.href);
   url2.protocol = url2.protocol.replace("http", "ws");
@@ -10824,7 +10824,7 @@ function makeURLForWebSocket(path, user, password) {
   return url2.toString();
 }
 
-// src/util/AutoReconnectingWebsocket.ts
+// src/lib/util/AutoReconnectingWebsocket.ts
 var AutoReconnectingWebsocket = class extends import_reconnecting_websocket.default {
   receivedFirstMessage;
   path;
@@ -14114,7 +14114,7 @@ var {
   mergeConfig: mergeConfig2
 } = axios_default;
 
-// src/ConnectedMotionGroup.ts
+// src/lib/ConnectedMotionGroup.ts
 var ConnectedMotionGroup = class _ConnectedMotionGroup {
   constructor(nova, controller, motionGroup, initialMotionState, motionStateSocket, isVirtual, tcps, motionGroupSpecification) {
     this.nova = nova;
@@ -14238,7 +14238,7 @@ var ConnectedMotionGroup = class _ConnectedMotionGroup {
   }
 };
 
-// src/NovaCellAPIClient.ts
+// src/lib/NovaCellAPIClient.ts
 var import_wandelbots_api_client = require("@wandelbots/wandelbots-api-client");
 var NovaCellAPIClient = class {
   constructor(cellId, config) {
