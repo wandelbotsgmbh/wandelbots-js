@@ -59,12 +59,10 @@ export class NovaCellAPIClient {
     for (const key of Reflect.ownKeys(Reflect.getPrototypeOf(apiClient)!)) {
       if (key !== "constructor" && typeof apiClient[key] === "function") {
         const originalFunction = apiClient[key]
-        apiClient[key] = async (...args: any[]) => {
-          const res = await originalFunction.apply(apiClient, [
-            this.cellId,
-            ...args,
-          ])
-          return res.data
+        apiClient[key] = (...args: any[]) => {
+          return originalFunction
+            .apply(apiClient, [this.cellId, ...args])
+            .then((res: any) => res.data)
         }
       }
     }
