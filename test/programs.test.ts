@@ -10,5 +10,6 @@ test("running a Wandelscript program", async () => {
   })
 
   const devices = await nova.api.deviceConfig.listDevices()
+  console.log(devices)
   expect(devices.length).toBeGreaterThan(0)
 })

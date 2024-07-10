@@ -24,9 +24,9 @@ You can make calls to the REST API via `nova.api`, which contains a bunch of nam
 
 For example, to list the devices configured in your cell:
 
-````ts
-const controllers = await nova.api.controller.listControllers()
-// ->
+```ts
+const devices = await nova.api.deviceConfig.listDevices()
+// -> e.g. [{ type: 'controller', identifier: 'abb_irb1200_7', ... }, ...]
 ```
 
 Documentation for the various API endpoints is available on your Nova instance at `/api/v1/ui` (public documentation site is in the works)
@@ -37,7 +37,7 @@ To set up nova-js for development, first clone the repo and run:
 
 ```bash
 npm install
-````
+```
 
 Then you can run the tests against any Nova instance:
 
