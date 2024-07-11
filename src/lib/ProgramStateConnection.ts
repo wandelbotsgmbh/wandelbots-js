@@ -69,8 +69,7 @@ export class ProgramStateConnection {
 
     if (msg.state === ProgramState.Failed) {
       try {
-        const { data: runnerState } =
-          await this.nova.api.program.getProgramRunner(msg.id)
+        const runnerState = await this.nova.api.program.getProgramRunner(msg.id)
 
         // TODO - wandelengine should send print statements in real time over
         // websocket as well, rather than at the end
@@ -92,8 +91,7 @@ export class ProgramStateConnection {
       this.gotoIdleState()
     } else if (msg.state === ProgramState.Stopped) {
       try {
-        const { data: runnerState } =
-          await this.nova.api.program.getProgramRunner(msg.id)
+        const runnerState = await this.nova.api.program.getProgramRunner(msg.id)
 
         const stdout = (runnerState as any).stdout
         if (stdout) {
@@ -111,8 +109,7 @@ export class ProgramStateConnection {
       this.gotoIdleState()
     } else if (msg.state === ProgramState.Completed) {
       try {
-        const { data: runnerState } =
-          await this.nova.api.program.getProgramRunner(msg.id)
+        const runnerState = await this.nova.api.program.getProgramRunner(msg.id)
 
         const stdout = (runnerState as any).stdout
         if (stdout) {
@@ -180,19 +177,18 @@ export class ProgramStateConnection {
     const trimmedCode = openProgram.wandelscript!.replaceAll(/^\s*$/gm, "")
 
     try {
-      const { data: programRunnerRef } =
-        await this.nova.api.program.createProgramRunner(
-          {
-            code: trimmedCode,
-            initial_state: initial_state,
-            default_robot: activeRobot?.wandelscriptIdentifier,
-          } as any,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
+      const programRunnerRef = await this.nova.api.program.createProgramRunner(
+        {
+          code: trimmedCode,
+          initial_state: initial_state,
+          default_robot: activeRobot?.wandelscriptIdentifier,
+        } as any,
+        {
+          headers: {
+            "Content-Type": "application/json",
           },
-        )
+        },
+      )
 
       this.log(`Created program runner ${programRunnerRef.id}"`)
 

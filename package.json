@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "tsc": "tsc --pretty --noEmit",
-    "build": "tsup src/index.ts --format esm,cjs --clean --dts",
+    "build": "tsup-node src/index.ts --format esm,cjs --clean --dts",
     "test": "vitest run"
   },
   "repository": {
