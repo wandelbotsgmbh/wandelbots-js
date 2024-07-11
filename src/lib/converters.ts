@@ -6,6 +6,14 @@ export function tryParseJson(json: unknown): any {
   }
 }
 
+export function tryStringifyJson(json: unknown): string | undefined {
+  try {
+    return JSON.stringify(json)
+  } catch {
+    return undefined
+  }
+}
+
 export function radToDeg(radians: number): number {
   return radians * (180 / Math.PI)
 }
