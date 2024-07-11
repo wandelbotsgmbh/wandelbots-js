@@ -8,7 +8,7 @@ npm install @wandelbots/nova
 
 ## Usage
 
-The core of this package is the `NovaClient`, which represents a connection to a configured robot cell on a given Nova instance.
+The core of this package is the `NovaClient`, which represents a connection to a configured robot cell on a given Nova instance:
 
 ```ts
 import { createNovaClient } from "@wandelbots/nova"
