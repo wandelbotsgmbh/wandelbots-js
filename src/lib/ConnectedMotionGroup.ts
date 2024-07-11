@@ -1,4 +1,4 @@
-import { tryParseJson } from "./util/converters"
+import { tryParseJson } from "./converters"
 import type {
   ControllerInstance,
   MotionGroupPhysical,
@@ -6,7 +6,7 @@ import type {
   MotionGroupState,
   RobotTcp,
 } from "@wandelbots/wandelbots-api-client"
-import { AutoReconnectingWebsocket } from "./util/AutoReconnectingWebsocket"
+import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { NovaClient } from "../NovaClient"
 import { AxiosError } from "axios"
 

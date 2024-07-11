@@ -1,6 +1,6 @@
 import { AxiosError } from "axios"
-import { AutoReconnectingWebsocket } from "./util/AutoReconnectingWebsocket"
-import { tryParseJson } from "./util/converters"
+import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
+import { tryParseJson } from "./converters"
 import type { NovaClient } from "../NovaClient"
 import type { ConnectedMotionGroup } from "./ConnectedMotionGroup"
 

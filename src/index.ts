@@ -1,2 +1,5 @@
 export * from "./NovaClient"
+export * from "./lib/ConnectedMotionGroup"
+export * from "./lib/NovaCellAPIClient"
+export * from "./lib/AutoReconnectingWebsocket"
 export * from "@wandelbots/wandelbots-api-client"
