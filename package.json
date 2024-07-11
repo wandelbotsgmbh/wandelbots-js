@@ -31,6 +31,7 @@
   "author": "Wandelbots",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
     "prettier-eslint": "^16.3.0",
     "semantic-release": "^24.0.0",
     "tsup": "^8.1.0",
