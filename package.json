@@ -1,5 +1,6 @@
 {
   "name": "@wandelbots/nova",
+  "type": "module",
   "version": "0.0.0-semantically-released",
   "description": "Official JS client for the Nova API",
   "exports": {
