@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
 import { expect, test } from "vitest"
-import { createNovaClient } from "../src"
+import { NovaClient } from "../src"
 
 test("running a Wandelscript program", async () => {
-  const nova = createNovaClient({
+  const nova = new NovaClient({
     instanceUrl: import.meta.env.NOVA_INSTANCE_URL,
     cellId: "cell",
   })

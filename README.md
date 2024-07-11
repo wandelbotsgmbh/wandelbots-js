@@ -11,9 +11,9 @@ npm install @wandelbots/nova
 The core of this package is the `NovaClient`, which represents a connection to a configured robot cell on a given Nova instance:
 
 ```ts
-import { createNovaClient } from "@wandelbots/nova"
+import { NovaClient } from "@wandelbots/nova"
 
-const nova = createNovaClient({
+const nova = new NovaClient({
   instanceUrl: "https://example.instance.wandelbots.io",
 })
 ```
