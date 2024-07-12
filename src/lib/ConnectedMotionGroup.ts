@@ -3,12 +3,16 @@ import type {
   ControllerInstance,
   MotionGroupPhysical,
   MotionGroupSpecification,
-  MotionGroupState,
+  MotionGroupStateResponse,
   RobotTcp,
 } from "@wandelbots/wandelbots-api-client"
+import { makeAutoObservable, runInAction } from "mobx"
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { NovaClient } from "../NovaClient"
 import { AxiosError } from "axios"
+import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
+
+const MOTION_DELTA_THRESHOLD = 0.0001
 
 export type MotionGroupOption = {
   selectionId: string
@@ -45,7 +49,8 @@ export class ConnectedMotionGroup {
 
     // Wait for the first message to get the initial state
     const firstMessage = await motionStateSocket.firstMessage()
-    const initialMotionState = tryParseJson(firstMessage.data)?.result?.state
+    const initialMotionState = tryParseJson(firstMessage.data)
+      ?.result as MotionGroupStateResponse
 
     if (!initialMotionState) {
       throw new Error(
@@ -54,7 +59,7 @@ export class ConnectedMotionGroup {
     }
 
     console.log(
-      `Connected motion state websocket to motion group ${motionGroupId}. Initial state:\n  `,
+      `Connected motion state websocket to motion group ${motionGroup.motion_group}. Initial state:\n  `,
       initialMotionState,
     )
 
@@ -100,13 +105,13 @@ export class ConnectedMotionGroup {
 
   // Not mobx-observable as this changes very fast; should be observed
   // using animation frames
-  rapidlyChangingMotionState: MotionGroupState
+  rapidlyChangingMotionState: MotionGroupStateResponse
 
   constructor(
     readonly nova: NovaClient,
     readonly controller: ControllerInstance,
     readonly motionGroup: MotionGroupPhysical,
-    readonly initialMotionState: MotionGroupState,
+    readonly initialMotionState: MotionGroupStateResponse,
     readonly motionStateSocket: AutoReconnectingWebsocket,
     readonly isVirtual: boolean,
     readonly tcps: RobotTcp[],
@@ -115,15 +120,44 @@ export class ConnectedMotionGroup {
     this.rapidlyChangingMotionState = initialMotionState
 
     motionStateSocket.addEventListener("message", (event) => {
-      const data = tryParseJson(event.data)?.result?.state
+      const motionStateResponse = tryParseJson(event.data)?.result as
+        | MotionGroupStateResponse
+        | undefined
 
-      if (!data) {
-        console.error("Invalid motion state data", event.data)
-        return
+      if (!motionStateResponse) {
+        throw new Error(
+          `Failed to get motion state for ${this.motionGroupId}: ${event.data}`,
+        )
       }
 
-      this.rapidlyChangingMotionState = data
+      // handle motionState message
+      if (
+        !jointValuesEqual(
+          this.rapidlyChangingMotionState.state.joint_position.joints,
+          motionStateResponse.state.joint_position.joints,
+          MOTION_DELTA_THRESHOLD,
+        )
+      ) {
+        runInAction(() => {
+          this.rapidlyChangingMotionState.state = motionStateResponse.state
+        })
+      }
+
+      // handle tcpPose message
+      if (
+        !tcpPoseEqual(
+          this.rapidlyChangingMotionState.tcp_pose,
+          motionStateResponse.tcp_pose,
+          MOTION_DELTA_THRESHOLD,
+        )
+      ) {
+        runInAction(() => {
+          this.rapidlyChangingMotionState.tcp_pose =
+            motionStateResponse.tcp_pose
+        })
+      }
     })
+    makeAutoObservable(this)
   }
 
   get motionGroupId() {
@@ -149,7 +183,7 @@ export class ConnectedMotionGroup {
   }
 
   get joints() {
-    return this.initialMotionState.joint_position.joints.map((_, i) => {
+    return this.initialMotionState.state.joint_position.joints.map((_, i) => {
       return {
         index: i,
       }
