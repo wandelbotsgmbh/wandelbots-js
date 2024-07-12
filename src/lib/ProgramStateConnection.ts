@@ -46,7 +46,7 @@ export class ProgramStateConnection {
 
   constructor(readonly nova: NovaClient) {
     this.programStateSocket = new AutoReconnectingWebsocket(`
-      ${nova.config.instanceUrl}/cells/${nova.config.cellId}/programs/state
+      ${nova.getBasePath()}/cells/${nova.config.cellId}/programs/state
     `)
 
     this.programStateSocket.addEventListener("message", (ev) => {

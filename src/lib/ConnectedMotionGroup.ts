@@ -38,7 +38,7 @@ export class ConnectedMotionGroup {
     }
 
     const motionStateSocket = new AutoReconnectingWebsocket(
-      `${nova.config.instanceUrl}/cells/${nova.config.cellId}/motion-groups/${motionGroupId}/state-stream`,
+      `${nova.getBasePath()}/cells/${nova.config.cellId}/motion-groups/${motionGroupId}/state-stream`,
       nova.config.username,
       nova.config.password,
     )

@@ -38,6 +38,13 @@ export class NovaClient {
     })
   }
 
+  /**
+   * Returns the base path for API requests.
+   */
+  getBasePath(): string {
+    return urlJoin(this.config.instanceUrl, "/api/v1")
+  }
+
   async connectMotionGroups(
     motionGroupIds: string[],
   ): Promise<ConnectedMotionGroup[]> {
