@@ -1,5 +1,5 @@
 {
-  "name": "@wandelbots/nova",
+  "name": "@wandelbots/nova-js",
   "type": "module",
   "version": "0.0.0-semantically-released",
   "description": "Official JS client for the Nova API",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wandelbotsgmbh/nova.git"
+    "url": "git+https://github.com/wandelbotsgmbh/nova-js.git"
   },
   "keywords": [
     "wandelbots",
