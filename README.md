@@ -33,7 +33,7 @@ Documentation for the various API endpoints is available on your Nova instance a
 
 ## Contributing
 
-To set up nova-js for development, first clone the repo and run:
+To set up the nova client for development, first clone the repo and run:
 
 ```bash
 npm install

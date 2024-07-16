@@ -5,9 +5,10 @@ import { NovaClient } from "../src"
 
 test("running a Wandelscript program", async () => {
   const nova = new NovaClient({
-    instanceUrl: import.meta.env.NOVA_INSTANCE_URL,
-    cellId: "cell",
+    instanceUrl: "http://mock:3000",
   })
+
+  const engine = await nova.connectWandelscriptEngine()
 
   const devices = await nova.api.deviceConfig.listDevices()
   expect(devices.length).toBeGreaterThan(0)
