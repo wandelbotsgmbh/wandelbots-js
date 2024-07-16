@@ -1,6 +1,6 @@
 # @wandelbots/nova-js
 
-The Wandelbots Nova client library provides convenient access to the Nova API from frontend JavaScript applications. In addition to typed methods for each API endpoint, we provide some higher level abstractions that manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution.
+The Wandelbots Nova client library provides convenient access to the Nova API from frontend JavaScript applications. Currently this contains typed methods for each API endpoint. We are also working on providing some higher level abstractions to manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution, which will be included in this package.
 
 ```bash
 npm install @wandelbots/nova-js
