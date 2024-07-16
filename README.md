@@ -1,5 +1,7 @@
 # @wandelbots/nova-js
 
+[![NPM version](https://img.shields.io/npm/v/@wandelbots/nova-js.svg)](https://npmjs.org/package/@wandelbots/nova-js) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@wandelbots/nova-js)](https://bundlephobia.com/package/@wandelbots/nova-js)
+
 The Wandelbots Nova client library provides convenient access to the Nova API from frontend JavaScript applications. Currently this contains typed methods for each API endpoint. We are also working on providing some higher level abstractions to manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution, which will be included in this package.
 
 ```bash
