@@ -39,7 +39,7 @@ export class NovaClient {
     })
   }
 
-  async connectProgramState() {
+  async connectWandelscriptEngine() {
     return new WandelscriptEngineConnection(this)
   }
 

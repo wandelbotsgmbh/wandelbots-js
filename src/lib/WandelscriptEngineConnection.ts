@@ -3,7 +3,7 @@ import { tryParseJson } from "./converters"
 import type { NovaClient } from "../NovaClient"
 import {
   ProgramRunnerConnection,
-  ProgramRunnerOpts,
+  ProgramRunnerConnectionOpts,
 } from "./ProgramRunnerConnection"
 
 /**
@@ -14,7 +14,7 @@ import {
 export class WandelscriptEngineConnection {
   programStateSocket: AutoReconnectingWebsocket
 
-  trackedPrograms: ProgramRun[] = []
+  trackedPrograms: ProgramRunnerConnection[] = []
 
   constructor(readonly nova: NovaClient) {
     this.programStateSocket = new AutoReconnectingWebsocket(`
@@ -36,13 +36,16 @@ export class WandelscriptEngineConnection {
       if (program) {
         program.handleProgramStateMessage(msg)
       }
+
+      if (program.state.kind === "finished") {
+        this.trackedPrograms = this.trackedPrograms.filter((p) => p !== program)
+      }
     })
   }
 
-  async runProgram(opts: ProgramRunnerOpts) {
+  async startProgram(opts: ProgramRunnerConnectionOpts) {
     const programRun = new ProgramRunnerConnection(this, opts)
     this.trackedPrograms.push(programRun)
-    await programRun.start()
     return programRun
   }
 }

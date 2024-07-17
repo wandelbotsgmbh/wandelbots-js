@@ -41,6 +41,7 @@
     "@wandelbots/wandelbots-api-client": "^0.97.0",
     "axios": "^1.7.2",
     "reconnecting-websocket": "^4.4.0",
+    "typescript-event-target": "^1.1.1",
     "url-join": "^5.0.0"
   }
 }
