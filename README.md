@@ -1,11 +1,11 @@
-# @wandelbots/nova-js
+# @wandelbots/wandelbots-js
 
-[![NPM version](https://img.shields.io/npm/v/@wandelbots/nova-js.svg)](https://npmjs.org/package/@wandelbots/nova-js) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@wandelbots/nova-js)](https://bundlephobia.com/package/@wandelbots/nova-js)
+[![NPM version](https://img.shields.io/npm/v/@wandelbots/wandelbots-js.svg)](https://npmjs.org/package/@wandelbots/wandelbots-js) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@wandelbots/wandelbots-js)](https://bundlephobia.com/package/@wandelbots/wandelbots-js)
 
-The Wandelbots Nova client library provides convenient access to the Nova API from frontend JavaScript applications. Currently this contains typed methods for each API endpoint. We are also working on providing some higher level abstractions to manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution, which will be included in this package.
+This library provides convenient access to the Wandelbots API from frontend JavaScript applications. Currently this contains typed methods for each API endpoint. We are also working on providing some higher level abstractions to manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution, which will be included in this package.
 
 ```bash
-npm install @wandelbots/nova-js
+npm install @wandelbots/wandelbots-js
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install @wandelbots/nova-js
 The core of this package is the `NovaClient`, which represents a connection to a configured robot cell on a given Nova instance:
 
 ```ts
-import { NovaClient } from "@wandelbots/nova-js"
+import { NovaClient } from "@wandelbots/wandelbots-js"
 
 const nova = new NovaClient({
   instanceUrl: "https://example.instance.wandelbots.io",
@@ -35,7 +35,7 @@ Documentation for the various API endpoints is available on your Nova instance a
 
 ## Contributing
 
-To set up nova-js for development, first clone the repo and run:
+To set up wandelbots-js for development, first clone the repo and run:
 
 ```bash
 npm install
