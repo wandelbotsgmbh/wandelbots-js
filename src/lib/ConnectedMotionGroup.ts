@@ -5,6 +5,7 @@ import type {
   MotionGroupSpecification,
   MotionGroupStateResponse,
   RobotTcp,
+  SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
 import { makeAutoObservable, runInAction } from "mobx"
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
@@ -86,6 +87,9 @@ export class ConnectedMotionGroup {
     const motionGroupSpecification =
       await nova.api.motionGroupInfos.getMotionGroupSpecification(motionGroupId)
 
+    const safetySetup =
+      await nova.api.motionGroupInfos.getSafetySetup(motionGroupId)
+
     return new ConnectedMotionGroup(
       nova,
       controller,
@@ -95,6 +99,7 @@ export class ConnectedMotionGroup {
       isVirtual,
       tcps!,
       motionGroupSpecification,
+      safetySetup,
     )
   }
 
@@ -116,6 +121,7 @@ export class ConnectedMotionGroup {
     readonly isVirtual: boolean,
     readonly tcps: RobotTcp[],
     readonly motionGroupSpecification: MotionGroupSpecification,
+    readonly safetySetup: SafetySetup,
   ) {
     this.rapidlyChangingMotionState = initialMotionState
 
@@ -192,6 +198,10 @@ export class ConnectedMotionGroup {
 
   get dhParameters() {
     return this.motionGroupSpecification.dh_parameters
+  }
+
+  get safetyZones() {
+    return this.safetySetup.safety_zones
   }
 
   dispose() {
