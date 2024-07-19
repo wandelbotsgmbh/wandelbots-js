@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/@wandelbots/wandelbots-js.svg)](https://npmjs.org/package/@wandelbots/wandelbots-js) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@wandelbots/wandelbots-js)](https://bundlephobia.com/package/@wandelbots/wandelbots-js) [![Release](https://github.com/wandelbotsgmbh/wandelbots-js/actions/workflows/release.yml/badge.svg)](https://github.com/wandelbotsgmbh/wandelbots-js/actions/workflows/release.yml)
 
-This library provides convenient access to the Wandelbots API from frontend JavaScript applications. Currently this contains typed methods for each API endpoint. We are also working on providing some higher level abstractions to manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution, which will be included in this package.
+This library provides convenient access to the Wandelbots API from frontend JavaScript applications. Currently this contains typed methods for each API endpoint. We are also working on providing some higher level abstractions to manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution, which will be included in this package. 
 
 ```bash
 npm install @wandelbots/wandelbots-js
