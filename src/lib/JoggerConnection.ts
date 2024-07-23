@@ -86,9 +86,12 @@ export class JoggerConnection {
     }
 
     if (mode === "cartesian" && !this.cartesianWebsocket) {
+      // TODO clarify when and whether these params are needed in
+      // the query string vs. the message body
       const queryString = makeUrlQueryString({
         tcp: this.cartesianJoggingOpts.tcpId || "",
-        coordinate_system: this.cartesianJoggingOpts.coordSystemId || "",
+        response_coordinate_system:
+          this.cartesianJoggingOpts.coordSystemId || "",
       })
 
       this.cartesianWebsocket = this.nova.openReconnectingWebsocket(
@@ -143,8 +146,6 @@ export class JoggerConnection {
     direction,
     velocityMmPerSec,
   }: {
-    tcpId: string
-    coordSystemId: string
     axis: "x" | "y" | "z"
     direction: "-" | "+"
     velocityMmPerSec: number
