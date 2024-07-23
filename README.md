@@ -53,7 +53,7 @@ Jogging in a robotics context generally refers to the manual movement of the rob
 
 ```ts
 // Parameter is the id of the motion group to jog
-const jogger = nova.connectJogger(`0@example-controller`)
+const jogger = await nova.connectJogger(`0@example-controller`)
 ```
 
 The jogger has two mutually exclusive modes. You must set the appropriate jogging mode before starting a jogging motion; this ensures that the motion is ready to start immediately when called with minimal delay.
