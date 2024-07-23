@@ -30,6 +30,7 @@
   "author": "Wandelbots",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@types/three": "^0.166.0",
     "prettier-eslint": "^16.3.0",
     "semantic-release": "^24.0.0",
     "tsup": "^8.1.0",
@@ -39,9 +40,10 @@
   "dependencies": {
     "@wandelbots/wandelbots-api-client": "^0.97.0",
     "axios": "^1.7.2",
-    "reconnecting-websocket": "^4.4.0",
-    "url-join": "^5.0.0",
     "mobx": "^6.12.4",
-    "mobx-react-lite": "^4.0.7"
+    "mobx-react-lite": "^4.0.7",
+    "reconnecting-websocket": "^4.4.0",
+    "three": "^0.166.1",
+    "url-join": "^5.0.0"
   }
 }
