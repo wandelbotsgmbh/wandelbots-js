@@ -62,7 +62,7 @@ The jogger has two mutually exclusive modes. You must set the appropriate joggin
 // Set the jogger to "joint" mode, enabling continuous joint rotations.
 await jogger.setJoggingMode("joint")
 
-// Set the jogger to "tcp" mode", enabling continuous translation
+// Set the jogger to "tcp" mode, enabling continuous translation
 // and rotation movements of the tool center point.
 await jogger.setJoggingMode("tcp")
 ```
