@@ -52,22 +52,24 @@ Documentation for the various API endpoints is available on your Nova instance a
 Jogging in a robotics context generally refers to the manual movement of the robot via direct human input. The Wandelbots platform provides websocket-based jogging methods which can be used to build similar jogging interfaces to those found on teach pendants.
 
 ```ts
-const jogger = nova.connectJogger(`0@example-controller`) // Parameter is the id of the motion group to jog
+// Parameter is the id of the motion group to jog
+const jogger = nova.connectJogger(`0@example-controller`)
 ```
 
-The jogger has three mutually exclusive modes. You must set the appropriate jogging mode before starting a jogging motion; this ensures that the motion is ready to start immediately when called with minimal delay.
+The jogger has two mutually exclusive modes. You must set the appropriate jogging mode before starting a jogging motion; this ensures that the motion is ready to start immediately when called with minimal delay.
 
 ```ts
 // Set the jogger to "joint" mode, enabling continuous joint rotations.
 await jogger.setJoggingMode("joint")
 
-// Set the jogger to "tcp" mode", enabling continuous translation and rotation movements of the tool center point.
+// Set the jogger to "tcp" mode", enabling continuous translation
+// and rotation movements of the tool center point.
 await jogger.setJoggingMode("tcp")
 ```
 
 ### Stopping the jogger
 
-For safety purposes, we should first consider how to stop the jogger. Calling stop will stop all motion types regardless of mode:
+For safety purposes, let's first consider how to stop the jogger. Calling stop will stop all motion types regardless of mode:
 
 ```ts
 await jogger.stop()
