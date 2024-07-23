@@ -96,25 +96,25 @@ await jogger.startJointRotation({
 
 ### Moving a TCP
 
-Requires `tcp` mode. This example starts moving a TCP in a positive direction along the X axis of the specified coordinate system, at a velocity of 5 millimeters per second:
+Requires `tcp` mode. This example starts moving a TCP in a positive direction along the X axis of the specified coordinate system, at a velocity of 10 millimeters per second:
 
 ```ts
 await jogger.startTCPTranslation({
   axis: "x",
   direction: "+",
-  velocityMmPerSec: 5,
+  velocityMmPerSec: 10,
 })
 ```
 
 ### Rotating a TCP
 
-Requires `tcp` mode. This example starts rotating the TCP in a positive direction around the X axis of the specified coordinate system, at a velocity of 5 radians per second:
+Requires `tcp` mode. This example starts rotating the TCP in a positive direction around the X axis of the specified coordinate system, at a velocity of 1 radians per second:
 
 ```ts
 await jogger.startTCPRotation({
   axis: "x",
   direction: "+",
-  velocityRadsPerSec: 5,
+  velocityRadsPerSec: 1,
 })
 ```
 
