@@ -14,10 +14,8 @@ export class JoggerConnection {
 
   constructor(
     readonly nova: NovaClient,
-    readonly config: {
-      motionGroupId: string
-      numJoints: number
-    },
+    readonly motionGroupId: string,
+    readonly numJoints: number,
   ) {}
 
   get activeJoggingMode() {
@@ -47,7 +45,7 @@ export class JoggerConnection {
 
     if (this.cartesianWebsocket) {
       this.cartesianWebsocket.sendJson({
-        motion_group: this.config.motionGroupId,
+        motion_group: this.motionGroupId,
         position_direction: { x: 0, y: 0, z: 0 },
         rotation_direction: { x: 0, y: 0, z: 0 },
         position_velocity: 0,
@@ -59,8 +57,8 @@ export class JoggerConnection {
 
     if (this.jointWebsocket) {
       this.jointWebsocket.sendJson({
-        motion_group: this.config.motionGroupId,
-        joint_velocities: new Array(this.config.numJoints).fill(0),
+        motion_group: this.motionGroupId,
+        joint_velocities: new Array(this.numJoints).fill(0),
       })
     }
   }
@@ -126,13 +124,13 @@ export class JoggerConnection {
       )
     }
 
-    const jointVelocities = new Array(this.config.numJoints).fill(0)
+    const jointVelocities = new Array(this.numJoints).fill(0)
 
     jointVelocities[joint] =
       direction === "-" ? -velocityRadsPerSec : velocityRadsPerSec
 
     this.jointWebsocket.sendJson({
-      motion_group: this.config.motionGroupId,
+      motion_group: this.motionGroupId,
       joint_velocities: jointVelocities,
     })
   }
@@ -162,7 +160,7 @@ export class JoggerConnection {
     joggingVector[axis] = direction === "-" ? -1 : 1
 
     this.cartesianWebsocket.sendJson({
-      motion_group: this.config.motionGroupId,
+      motion_group: this.motionGroupId,
       position_direction: joggingVector,
       rotation_direction: zeroVector,
       position_velocity: velocityMmPerSec,
@@ -195,7 +193,7 @@ export class JoggerConnection {
     joggingVector[axis] = direction === "-" ? -1 : 1
 
     this.cartesianWebsocket.sendJson({
-      motion_group: this.config.motionGroupId,
+      motion_group: this.motionGroupId,
       position_direction: zeroVector,
       rotation_direction: joggingVector,
       position_velocity: 0,

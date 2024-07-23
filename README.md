@@ -112,8 +112,6 @@ Requires `tcp` mode. This example starts rotating the TCP in a positive directio
 
 ```ts
 await jogger.startTCPRotation({
-  tcpId: "some-tcp",
-  coordSystemId: "some-coord-system",
   axis: "x",
   direction: "+",
   velocityRadsPerSec: 5,

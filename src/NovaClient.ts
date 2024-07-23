@@ -3,6 +3,7 @@ import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
 import urlJoin from "url-join"
 import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
 import { AxiosRequestConfig } from "axios"
+import { JoggerConnection } from "./lib/JoggerConnection"
 
 export type NovaClientConfig = {
   /**
@@ -94,5 +95,15 @@ export class NovaClient {
    */
   openReconnectingWebsocket(path: string) {
     return new AutoReconnectingWebsocket(this.makeWebsocketURL(path))
+  }
+
+  /**
+   * Connect to the jogging websocket(s) for a given motion group
+   */
+  async connectJogger(motionGroupId: string) {
+    // Need to figure out how many joints the robot has
+    const spec =
+      await this.api.motionGroupInfos.getMotionGroupSpecification(motionGroupId)
+    return new JoggerConnection(this, motionGroupId, spec.dh_parameters!.length)
   }
 }
