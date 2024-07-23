@@ -42,10 +42,8 @@ export class ConnectedMotionGroup {
       )
     }
 
-    const motionStateSocket = new AutoReconnectingWebsocket(
-      `${nova.getBasePath()}/cells/${nova.config.cellId}/motion-groups/${motionGroupId}/state-stream`,
-      nova.config.username,
-      nova.config.password,
+    const motionStateSocket = nova.openReconnectingWebsocket(
+      `/motion-groups/${motionGroupId}/state-stream`,
     )
 
     // Wait for the first message to get the initial state
