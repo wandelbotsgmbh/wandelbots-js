@@ -17,6 +17,7 @@ npm install @wandelbots/wandelbots-js
   - [Rotating a joint](#rotating-a-joint)
   - [Moving a TCP](#moving-the-tcp)
   - [Rotating a TCP](#rotating-the-tcp)
+  - [Post-jogging cleanup](#post-jogging-cleanup)
 
 ## Basic usage
 
@@ -52,8 +53,7 @@ Documentation for the various API endpoints is available on your Nova instance a
 Jogging in a robotics context generally refers to the manual movement of the robot via direct human input. The Wandelbots platform provides websocket-based jogging methods which can be used to build similar jogging interfaces to those found on teach pendants.
 
 ```ts
-// Parameter is the id of the motion group to jog
-const jogger = await nova.connectJogger(`0@example-controller`)
+const jogger = await nova.connectJogger(`some-motion-group-id`)
 ```
 
 The jogger has two mutually exclusive modes. You must set the appropriate jogging mode before starting a jogging motion; this ensures that the motion is ready to start immediately when called with minimal delay.
@@ -64,7 +64,10 @@ await jogger.setJoggingMode("joint")
 
 // Set the jogger to "tcp" mode, enabling continuous translation
 // and rotation movements of the tool center point.
-await jogger.setJoggingMode("tcp")
+await jogger.setJoggingMode("tcp", {
+  tcpId: "flange",
+  coordSystemId: "world",
+})
 ```
 
 ### Stopping the jogger
@@ -97,8 +100,6 @@ Requires `tcp` mode. This example starts moving a TCP in a positive direction al
 
 ```ts
 await jogger.startTCPTranslation({
-  tcpId: "some-tcp",
-  coordSystemId: "some-coord-system",
   axis: "x",
   direction: "+",
   velocityMmPerSec: 5,
@@ -118,6 +119,16 @@ await jogger.startTCPRotation({
   velocityRadsPerSec: 5,
 })
 ```
+
+### Post-jogging cleanup
+
+When you are done with a jogger, make sure to call dispose:
+
+```ts
+await jogger.dispose()
+```
+
+This will close any open websockets and ensure things are left in a good state.
 
 ## Contributing
 
