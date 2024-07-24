@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "@wandelbots/wandelbots-api-client": "^0.97.0",
-    "axios": "^1.7.2",
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
     "reconnecting-websocket": "^4.4.0",
