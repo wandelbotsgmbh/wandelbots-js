@@ -18,7 +18,7 @@
     "tsc": "tsc --pretty --noEmit",
     "dev": "npm run build -- --watch",
     "build": "tsup src/index.ts --format esm,cjs --clean --dts --minify --sourcemap",
-    "test": "vitest run"
+    "test": "npm run build && vitest run"
   },
   "repository": {
     "type": "git",
