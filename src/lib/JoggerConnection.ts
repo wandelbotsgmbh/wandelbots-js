@@ -1,6 +1,7 @@
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { NovaClient } from "../NovaClient"
 import { makeUrlQueryString } from "./converters"
+import { MotionStreamConnection } from "./MotionStreamConnection"
 
 export class JoggerConnection {
   // Currently a separate websocket is needed for each mode, pester API people
@@ -12,11 +13,25 @@ export class JoggerConnection {
     coordSystemId?: string
   } = {}
 
-  constructor(
-    readonly nova: NovaClient,
-    readonly motionGroupId: string,
-    readonly numJoints: number,
-  ) {}
+  static async open(nova: NovaClient, motionGroupId: string) {
+    const motionStream = await nova.connectMotionStream(motionGroupId)
+
+    return new JoggerConnection(motionStream)
+  }
+
+  constructor(readonly motionStream: MotionStreamConnection) {}
+
+  get motionGroupId() {
+    return this.motionStream.motionGroupId
+  }
+
+  get nova() {
+    return this.motionStream.nova
+  }
+
+  get numJoints() {
+    return this.motionStream.joints.length
+  }
 
   get activeJoggingMode() {
     if (this.cartesianWebsocket) return "cartesian"

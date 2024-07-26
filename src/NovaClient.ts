@@ -4,6 +4,7 @@ import urlJoin from "url-join"
 import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
 import { AxiosRequestConfig } from "axios"
 import { JoggerConnection } from "./lib/JoggerConnection"
+import { MotionStreamConnection } from "./lib/MotionStreamConnection"
 
 export type NovaClientConfig = {
   /**
@@ -98,12 +99,16 @@ export class NovaClient {
   }
 
   /**
+   * Connect to the motion state websocket(s) for a given motion group
+   */
+  async connectMotionStream(motionGroupId: string) {
+    return await MotionStreamConnection.open(this, motionGroupId)
+  }
+
+  /**
    * Connect to the jogging websocket(s) for a given motion group
    */
   async connectJogger(motionGroupId: string) {
-    // Need to figure out how many joints the robot has
-    const spec =
-      await this.api.motionGroupInfos.getMotionGroupSpecification(motionGroupId)
-    return new JoggerConnection(this, motionGroupId, spec.dh_parameters!.length)
+    return await JoggerConnection.open(this, motionGroupId)
   }
 }

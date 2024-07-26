@@ -22,12 +22,11 @@ export type MotionGroupOption = {
 /**
  * Store representing the current state of a connected motion group.
  */
-export class ConnectedMotionGroup {
-  static async connect(
-    nova: NovaClient,
-    motionGroupId: string,
-    controllers: ControllerInstance[],
-  ) {
+export class MotionStreamConnection {
+  static async open(nova: NovaClient, motionGroupId: string) {
+    const { instances: controllers } =
+      await nova.api.controller.listControllers()
+
     const [_motionGroupIndex, controllerId] = motionGroupId.split("@") as [
       string,
       string,
@@ -88,7 +87,7 @@ export class ConnectedMotionGroup {
     const safetySetup =
       await nova.api.motionGroupInfos.getSafetySetup(motionGroupId)
 
-    return new ConnectedMotionGroup(
+    return new MotionStreamConnection(
       nova,
       controller,
       motionGroup,
@@ -100,11 +99,6 @@ export class ConnectedMotionGroup {
       safetySetup,
     )
   }
-
-  connectedJoggingCartesianSocket: WebSocket | null = null
-  connectedJoggingJointsSocket: WebSocket | null = null
-  planData: any | null // tmp
-  joggingVelocity: number = 10
 
   // Not mobx-observable as this changes very fast; should be observed
   // using animation frames
@@ -181,11 +175,6 @@ export class ConnectedMotionGroup {
     return `${this.controllerId.replaceAll("-", "_")}_${num}`
   }
 
-  /** Jogging velocity in radians for rotation and joint movement */
-  get joggingVelocityRads() {
-    return (this.joggingVelocity * Math.PI) / 180
-  }
-
   get joints() {
     return this.initialMotionState.state.joint_position.joints.map((_, i) => {
       return {
@@ -204,13 +193,5 @@ export class ConnectedMotionGroup {
 
   dispose() {
     this.motionStateSocket.close()
-    if (this.connectedJoggingCartesianSocket)
-      this.connectedJoggingCartesianSocket.close()
-    if (this.connectedJoggingJointsSocket)
-      this.connectedJoggingJointsSocket.close()
-  }
-
-  setJoggingVelocity(velocity: number) {
-    this.joggingVelocity = velocity
   }
 }

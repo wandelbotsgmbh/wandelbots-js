@@ -1,5 +1,5 @@
 export * from "./NovaClient"
-export * from "./lib/ConnectedMotionGroup"
+export * from "./lib/MotionStreamConnection"
 export * from "./lib/NovaCellAPIClient"
 export * from "./lib/AutoReconnectingWebsocket"
 export * from "./lib/ProgramStateConnection"

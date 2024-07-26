@@ -2,7 +2,7 @@ import { AxiosError } from "axios"
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { tryParseJson } from "./converters"
 import type { NovaClient } from "../NovaClient"
-import type { ConnectedMotionGroup } from "./ConnectedMotionGroup"
+import type { MotionStreamConnection } from "./MotionStreamConnection"
 
 export type ProgramRunnerLogEntry = {
   timestamp: number
@@ -147,7 +147,7 @@ export class ProgramStateConnection {
   async executeProgram(
     wandelscript: string,
     initial_state?: Object,
-    activeRobot?: ConnectedMotionGroup,
+    activeRobot?: MotionStreamConnection,
   ) {
     this.currentProgram = {
       wandelscript: wandelscript,

@@ -15,10 +15,10 @@
     "dist"
   ],
   "scripts": {
+    "dev": "nodemon -w \".\" -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
-    "dev": "npm run build -- --watch",
     "build": "tsup src/index.ts --format esm,cjs --clean --dts --minify --sourcemap",
-    "test": "vitest run"
+    "test": "npm run build && vitest run"
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/three": "^0.166.0",
+    "nodemon": "^3.1.4",
     "prettier-eslint": "^16.3.0",
     "semantic-release": "^24.0.0",
     "tsup": "^8.1.0",
@@ -40,6 +41,7 @@
   },
   "dependencies": {
     "@wandelbots/wandelbots-api-client": "^0.97.0",
+    "axios": "^1.7.2",
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
     "reconnecting-websocket": "^4.4.0",
