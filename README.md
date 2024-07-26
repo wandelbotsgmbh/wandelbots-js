@@ -136,8 +136,8 @@ To set up wandelbots-js for development, first clone the repo and run:
 npm install
 ```
 
-Then you can run the tests against any Nova instance:
+Then you can run the tests which will use a mocked Nova API and socket connections:
 
 ```bash
-NOVA_INSTANCE_URL=https://example.instance.wandelbots.io npm run test
+npm run test
 ```

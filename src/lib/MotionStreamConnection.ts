@@ -2,15 +2,11 @@ import { tryParseJson } from "./converters"
 import type {
   ControllerInstance,
   MotionGroupPhysical,
-  MotionGroupSpecification,
   MotionGroupStateResponse,
-  RobotTcp,
-  SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
 import { makeAutoObservable, runInAction } from "mobx"
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { NovaClient } from "../NovaClient"
-import { AxiosError } from "axios"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
@@ -61,42 +57,12 @@ export class MotionStreamConnection {
       initialMotionState,
     )
 
-    // This is used to determine if the robot is virtual or physical
-    let isVirtual = false
-    try {
-      const opMode =
-        await nova.api.virtualRobotMode.getOperationMode(controllerId)
-
-      if (opMode) isVirtual = true
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        console.log(
-          `Received ${err.status} from getOperationMode, concluding that ${controllerId} is physical`,
-        )
-      } else {
-        throw err
-      }
-    }
-
-    // Find out what TCPs this motion group has (we need it for jogging)
-    const { tcps } = await nova.api.motionGroupInfos.listTcps(motionGroupId)
-
-    const motionGroupSpecification =
-      await nova.api.motionGroupInfos.getMotionGroupSpecification(motionGroupId)
-
-    const safetySetup =
-      await nova.api.motionGroupInfos.getSafetySetup(motionGroupId)
-
     return new MotionStreamConnection(
       nova,
       controller,
       motionGroup,
       initialMotionState,
       motionStateSocket,
-      isVirtual,
-      tcps!,
-      motionGroupSpecification,
-      safetySetup,
     )
   }
 
@@ -110,10 +76,6 @@ export class MotionStreamConnection {
     readonly motionGroup: MotionGroupPhysical,
     readonly initialMotionState: MotionGroupStateResponse,
     readonly motionStateSocket: AutoReconnectingWebsocket,
-    readonly isVirtual: boolean,
-    readonly tcps: RobotTcp[],
-    readonly motionGroupSpecification: MotionGroupSpecification,
-    readonly safetySetup: SafetySetup,
   ) {
     this.rapidlyChangingMotionState = initialMotionState
 
@@ -181,14 +143,6 @@ export class MotionStreamConnection {
         index: i,
       }
     })
-  }
-
-  get dhParameters() {
-    return this.motionGroupSpecification.dh_parameters
-  }
-
-  get safetyZones() {
-    return this.safetySetup.safety_zones
   }
 
   dispose() {
