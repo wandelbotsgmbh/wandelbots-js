@@ -3,20 +3,19 @@ import { makeURLForWebSocket } from "./websocket"
 
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent
-  path: string
 
-  constructor(path: string, user?: string, password?: string) {
-    super(() => makeURLForWebSocket(this.path, user, password), undefined, {
+  constructor(url: string) {
+    console.log("Opening websocket to", url)
+    super(url, undefined, {
       startClosed: true,
     })
-    this.path = path
 
     this.addEventListener("open", () => {
-      console.log(`Websocket to ${path} opened`)
+      console.log(`Websocket to ${url} opened`)
     })
 
     this.addEventListener("close", () => {
-      console.log(`Websocket to ${path} closed`)
+      console.log(`Websocket to ${url} closed`)
     })
 
     this.reconnect()

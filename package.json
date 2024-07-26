@@ -18,7 +18,7 @@
     "dev": "nodemon -w \".\" -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
     "build": "tsup src/index.ts --format esm,cjs --clean --dts --minify --sourcemap",
-    "test": "npm run build && vitest run"
+    "test": "npm run build && NODE_OPTIONS='--experimental-websocket' vitest run"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
   "author": "Wandelbots",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@mswjs/interceptors": "^0.33.2",
     "@types/three": "^0.166.0",
     "msw": "^2.3.4",
     "nodemon": "^3.1.4",
@@ -47,6 +48,7 @@
     "mobx-react-lite": "^4.0.7",
     "reconnecting-websocket": "^4.4.0",
     "three": "^0.166.1",
+    "undici": "^6.19.4",
     "url-join": "^5.0.0"
   }
 }
