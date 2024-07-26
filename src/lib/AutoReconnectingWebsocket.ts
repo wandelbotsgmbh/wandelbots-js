@@ -1,5 +1,4 @@
 import ReconnectingWebSocket, { type ErrorEvent } from "reconnecting-websocket"
-import { makeURLForWebSocket } from "./websocket"
 
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent

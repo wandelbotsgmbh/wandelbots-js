@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import { test } from "vitest"
+import { expect, test } from "vitest"
 import { NovaClient } from "../dist"
 
 test("motion stream", async () => {
@@ -9,4 +9,5 @@ test("motion stream", async () => {
   })
 
   const motionStream = await nova.connectMotionStream("0@mock-ur5e")
+  expect(motionStream.joints.length).toBe(6)
 })

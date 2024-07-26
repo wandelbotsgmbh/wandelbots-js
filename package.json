@@ -48,7 +48,6 @@
     "mobx-react-lite": "^4.0.7",
     "reconnecting-websocket": "^4.4.0",
     "three": "^0.166.1",
-    "undici": "^6.19.4",
     "url-join": "^5.0.0"
   }
 }
