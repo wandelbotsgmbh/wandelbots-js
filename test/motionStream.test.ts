@@ -3,13 +3,12 @@
 import { expect, test } from "vitest"
 import { NovaClient } from "../dist"
 
-test("things compile and initialize", async () => {
+test("motion stream", async () => {
   const nova = new NovaClient({
     instanceUrl: "https://nova.mock",
     mock: true,
   })
 
-  expect(nova.config.cellId).toBe("cell")
-
-  const result = await nova.api.controller.listControllers()
+  const motionStream = await nova.connectMotionStream("0@mock-ur5e")
+  expect(motionStream.joints.length).toBe(6)
 })

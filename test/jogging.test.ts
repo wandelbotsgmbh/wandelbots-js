@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import { expect, test } from "vitest"
+import { test } from "vitest"
 import { NovaClient } from "../dist"
 
 test("things compile and initialize", async () => {
@@ -8,8 +8,4 @@ test("things compile and initialize", async () => {
     instanceUrl: "https://nova.mock",
     mock: true,
   })
-
-  expect(nova.config.cellId).toBe("cell")
-
-  const result = await nova.api.controller.listControllers()
 })

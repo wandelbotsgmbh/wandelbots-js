@@ -15,7 +15,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "nodemon -w \".\" -i *.tgz -i dist -x \"npm run build && npm pack\"",
+    "dev": "nodemon -w \".\" -e ts -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
     "build": "tsup src/index.ts --format esm,cjs --clean --dts --minify --sourcemap",
     "build:dev": "tsup src/index.ts --format esm,cjs --dts --sourcemap",
@@ -32,6 +32,9 @@
   "author": "Wandelbots",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@mswjs/interceptors": "^0.33.2",
+    "@types/three": "^0.166.0",
+    "msw": "^2.3.4",
     "nodemon": "^3.1.4",
     "prettier-eslint": "^16.3.0",
     "semantic-release": "^24.0.0",
@@ -44,7 +47,9 @@
     "axios": "^1.7.2",
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
+    "path-to-regexp": "^7.1.0",
     "reconnecting-websocket": "^4.4.0",
+    "three": "^0.166.1",
     "url-join": "^5.0.0"
   }
 }

@@ -2,7 +2,7 @@ import { AxiosError } from "axios"
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { tryParseJson } from "./converters"
 import type { NovaClient } from "../NovaClient"
-import type { ConnectedMotionGroup } from "./ConnectedMotionGroup"
+import type { MotionStreamConnection } from "./MotionStreamConnection"
 
 export type ProgramRunnerLogEntry = {
   timestamp: number
@@ -45,9 +45,7 @@ export class ProgramStateConnection {
   programStateSocket: AutoReconnectingWebsocket
 
   constructor(readonly nova: NovaClient) {
-    this.programStateSocket = new AutoReconnectingWebsocket(`
-      ${nova.getBasePath()}/cells/${nova.config.cellId}/programs/state
-    `)
+    this.programStateSocket = nova.openReconnectingWebsocket(`/programs/state`)
 
     this.programStateSocket.addEventListener("message", (ev) => {
       const msg = tryParseJson(ev.data)
@@ -149,7 +147,7 @@ export class ProgramStateConnection {
   async executeProgram(
     wandelscript: string,
     initial_state?: Object,
-    activeRobot?: ConnectedMotionGroup,
+    activeRobot?: MotionStreamConnection,
   ) {
     this.currentProgram = {
       wandelscript: wandelscript,

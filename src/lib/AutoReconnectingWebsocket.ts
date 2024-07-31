@@ -1,29 +1,43 @@
 import ReconnectingWebSocket, { type ErrorEvent } from "reconnecting-websocket"
-import { makeURLForWebSocket } from "./websocket"
+import type { MockNovaInstance } from "../mock/MockNovaInstance"
 
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent
-  path: string
 
-  constructor(path: string, user?: string, password?: string) {
-    super(() => makeURLForWebSocket(this.path, user, password), undefined, {
+  constructor(
+    url: string,
+    readonly opts: { mock?: MockNovaInstance } = {},
+  ) {
+    console.log("Opening websocket to", url)
+    super(url, undefined, {
       startClosed: true,
     })
-    this.path = path
+
+    // reconnecting-websocket doesn't set this properly with startClosed
+    // so we do it ourselves
+    Object.defineProperty(this, "url", { value: url })
 
     this.addEventListener("open", () => {
-      console.log(`Websocket to ${path} opened`)
+      console.log(`Websocket to ${url} opened`)
     })
 
     this.addEventListener("close", () => {
-      console.log(`Websocket to ${path} closed`)
+      console.log(`Websocket to ${url} closed`)
     })
 
-    this.reconnect()
+    if (this.opts.mock) {
+      this.opts.mock.handleWebsocketConnection(this)
+    } else {
+      this.reconnect()
+    }
   }
 
   sendJson(data: unknown) {
-    this.send(JSON.stringify(data))
+    if (this.opts.mock) {
+      this.opts.mock.handleWebsocketMessage(this, JSON.stringify(data))
+    } else {
+      this.send(JSON.stringify(data))
+    }
   }
 
   async firstMessage() {
