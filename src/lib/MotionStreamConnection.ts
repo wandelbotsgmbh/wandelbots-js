@@ -11,10 +11,6 @@ import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
 
-export type MotionGroupOption = {
-  selectionId: string
-} & MotionGroupPhysical
-
 /**
  * Store representing the current state of a connected motion group.
  */
