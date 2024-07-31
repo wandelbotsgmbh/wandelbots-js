@@ -6,6 +6,7 @@ import { AxiosRequestConfig, getAdapter } from "axios"
 import { JoggerConnection } from "./lib/JoggerConnection"
 import { MotionStreamConnection } from "./lib/MotionStreamConnection"
 import { MockNovaInstance } from "./mock/MockNovaInstance"
+import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
 
 export type NovaClientConfig = {
   /**
@@ -133,5 +134,24 @@ export class NovaClient {
    */
   async connectJogger(motionGroupId: string) {
     return await JoggerConnection.open(this, motionGroupId)
+  }
+
+  async connectMotionGroups(
+    motionGroupIds: string[],
+  ): Promise<ConnectedMotionGroup[]> {
+    const { instances } = await this.api.controller.listControllers()
+
+    return Promise.all(
+      motionGroupIds.map((motionGroupId) =>
+        ConnectedMotionGroup.connect(this, motionGroupId, instances),
+      ),
+    )
+  }
+
+  async connectMotionGroup(
+    motionGroupId: string,
+  ): Promise<ConnectedMotionGroup> {
+    const motionGroups = await this.connectMotionGroups([motionGroupId])
+    return motionGroups[0]!
   }
 }
