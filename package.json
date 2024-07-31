@@ -46,6 +46,7 @@
     "axios": "^1.7.2",
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
+    "path-to-regexp": "^7.1.0",
     "reconnecting-websocket": "^4.4.0",
     "three": "^0.166.1",
     "url-join": "^5.0.0"

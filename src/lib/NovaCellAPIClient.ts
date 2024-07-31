@@ -41,7 +41,7 @@ export type WithCellId<T> = {
 export class NovaCellAPIClient {
   constructor(
     readonly cellId: string,
-    readonly config: Configuration,
+    readonly opts: Configuration & { mock?: boolean },
   ) {}
 
   /**
@@ -52,7 +52,7 @@ export class NovaCellAPIClient {
   private withCellId<T extends BaseAPI>(
     ApiConstructor: new (config: Configuration) => T,
   ) {
-    const apiClient = new ApiConstructor(this.config) as {
+    const apiClient = new ApiConstructor(this.opts) as {
       [key: string | symbol]: any
     }
 
