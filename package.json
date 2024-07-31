@@ -18,7 +18,8 @@
     "dev": "nodemon -w \".\" -e ts -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
     "build": "tsup src/index.ts --format esm,cjs --clean --dts --minify --sourcemap",
-    "test": "npm run build && NODE_OPTIONS='--experimental-websocket' vitest run"
+    "build:dev": "tsup src/index.ts --format esm,cjs --dts --sourcemap",
+    "test": "npm run build && vitest run"
   },
   "repository": {
     "type": "git",

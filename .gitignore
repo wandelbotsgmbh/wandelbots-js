@@ -1,5 +1,6 @@
 .rollup.cache
 dist
+.DS_Store
 node_modules
 tsconfig.tsbuildinfo
 wandelbots-wandelbots-js-*.tgz
