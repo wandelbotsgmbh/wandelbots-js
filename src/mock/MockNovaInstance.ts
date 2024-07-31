@@ -1,6 +1,6 @@
 import { InternalAxiosRequestConfig, AxiosResponse } from "axios"
 import type { AutoReconnectingWebsocket } from "../lib/AutoReconnectingWebsocket"
-import pathToRegexp from "path-to-regexp"
+import * as pathToRegexp from "path-to-regexp"
 import {
   ControllerInstanceList,
   MotionGroupStateResponse,
