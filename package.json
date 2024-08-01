@@ -40,7 +40,8 @@
     "semantic-release": "^24.0.0",
     "tsup": "^8.1.0",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.2"
+    "vitest": "^2.0.2",
+    "ws": "^8.18.0"
   },
   "dependencies": {
     "@wandelbots/wandelbots-api-client": "^0.97.0",

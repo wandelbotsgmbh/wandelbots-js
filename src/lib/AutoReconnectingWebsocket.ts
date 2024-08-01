@@ -13,10 +13,6 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
       startClosed: true,
     })
 
-    // reconnecting-websocket doesn't set this properly with startClosed
-    // so we do it ourselves
-    Object.defineProperty(this, "url", { value: url })
-
     this.addEventListener("open", () => {
       console.log(`Websocket to ${url} opened`)
     })
@@ -25,11 +21,24 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
       console.log(`Websocket to ${url} closed`)
     })
 
-    if (this.opts.mock) {
-      this.opts.mock.handleWebsocketConnection(this)
-    } else {
-      this.reconnect()
+    const origReconnect = this.reconnect
+    this.reconnect = () => {
+      if (this.opts.mock) {
+        this.opts.mock.handleWebsocketConnection(this)
+      } else {
+        this.reconnect()
+      }
+      origReconnect.apply(this)
     }
+
+    this.changeUrl(url)
+  }
+
+  changeUrl(url: string) {
+    // reconnecting-websocket doesn't set this properly with startClosed
+    // so we do it ourselves
+    Object.defineProperty(this, "url", { value: url, configurable: true })
+    this.reconnect()
   }
 
   sendJson(data: unknown) {
