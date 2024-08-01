@@ -26,9 +26,8 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
       if (this.opts.mock) {
         this.opts.mock.handleWebsocketConnection(this)
       } else {
-        this.reconnect()
+        origReconnect.apply(this)
       }
-      origReconnect.apply(this)
     }
 
     this.changeUrl(url)
