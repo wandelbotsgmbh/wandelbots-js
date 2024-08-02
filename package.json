@@ -12,13 +12,13 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "dev:pack": "nodemon -w \".\" -e ts -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
-    "build": "tsup src/index.ts --format esm,cjs --clean --dts --minify --sourcemap",
-    "build:dev": "tsup src/index.ts --format esm,cjs --dts --sourcemap",
+    "build": "tsup src/index.ts --format esm,cjs --clean --dts --sourcemap",
     "test": "npm run build && vitest run"
   },
   "repository": {
