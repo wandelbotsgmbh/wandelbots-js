@@ -37,8 +37,6 @@ export class MotionStreamConnection {
       `/motion-groups/${motionGroupId}/state-stream`,
     )
 
-    console.log("opening websocket!")
-
     // Wait for the first message to get the initial state
     const firstMessage = await motionStateSocket.firstMessage()
     console.log("got first message", firstMessage)

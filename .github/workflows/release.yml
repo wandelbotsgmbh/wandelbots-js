@@ -1,7 +1,7 @@
 # semantic-release action
 # Derived from https://semantic-release.gitbook.io/semantic-release/recipes/ci-configurations/github-actions
 
-name: Release
+name: release
 on:
   push:
     branches:
@@ -11,30 +11,31 @@ permissions:
   contents: read # for checkout
 
 jobs:
-  release:
-    name: Release
+  build-and-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      id-token: write
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for npm provenance
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-
-      - run: npm ci
-
-      - run: npm run build
-
+      - name: Install dependencies
+        run: npm clean-install
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
-
-      - run: npx semantic-release
+      - name: Build
+        run: npm run build
+      # semantic-release skips non-configured branches or pull-requests
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+        run: npx semantic-release

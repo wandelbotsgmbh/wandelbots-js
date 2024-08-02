@@ -3,22 +3,39 @@ import type { MockNovaInstance } from "../mock/MockNovaInstance"
 
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent
+  targetUrl: string
 
   constructor(
-    url: string,
+    targetUrl: string,
     readonly opts: { mock?: MockNovaInstance } = {},
   ) {
-    console.log("Opening websocket to", url)
-    super(url, undefined, {
+    console.log("Opening websocket to", targetUrl)
+
+    super(() => this.targetUrl || targetUrl, undefined, {
       startClosed: true,
     })
 
+    // Reconnecting websocket doesn't set this properly with startClosed
+    Object.defineProperty(this, "url", {
+      get() {
+        return this.targetUrl
+      },
+    })
+
+    this.targetUrl = targetUrl
+
     this.addEventListener("open", () => {
-      console.log(`Websocket to ${url} opened`)
+      console.log(`Websocket to ${this.url} opened`)
+    })
+
+    this.addEventListener("message", (ev) => {
+      if (!this.receivedFirstMessage) {
+        this.receivedFirstMessage = ev
+      }
     })
 
     this.addEventListener("close", () => {
-      console.log(`Websocket to ${url} closed`)
+      console.log(`Websocket to ${this.url} closed`)
     })
 
     const origReconnect = this.reconnect
@@ -30,13 +47,12 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
       }
     }
 
-    this.changeUrl(url)
+    this.reconnect()
   }
 
-  changeUrl(url: string) {
-    // reconnecting-websocket doesn't set this properly with startClosed
-    // so we do it ourselves
-    Object.defineProperty(this, "url", { value: url, configurable: true })
+  changeUrl(targetUrl: string) {
+    this.receivedFirstMessage = undefined
+    this.targetUrl = targetUrl
     this.reconnect()
   }
 
