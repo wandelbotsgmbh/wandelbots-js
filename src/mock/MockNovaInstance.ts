@@ -14,10 +14,6 @@ import {
 export class MockNovaInstance {
   readonly connections: AutoReconnectingWebsocket[] = []
 
-  constructor() {
-    console.log("Mock websocket server created")
-  }
-
   async handleAPIRequest(
     config: InternalAxiosRequestConfig,
   ): Promise<AxiosResponse> {
@@ -249,7 +245,7 @@ export class MockNovaInstance {
 
       console.log("Websocket connection opened from", socket.url)
 
-      if (socket.url.endsWith("/state-stream")) {
+      if (socket.url.includes("/state-stream")) {
         socket.dispatchEvent(
           new MessageEvent("message", {
             data: JSON.stringify(defaultMotionState),
