@@ -1,18 +1,21 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es6",
     "lib": [
-      "esnext",
+      "es2021",
       "DOM"
     ],
-    "module": "esnext",
+    "module": "preserve",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "strict": true,
-    "strictNullChecks": true,
     "esModuleInterop": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
+    "outDir": "dist",
+    "declaration": true,
+    // Enables "Go to Definition" when dist and src are distributed together
+    "declarationMap": true,
     // https://github.com/microsoft/TypeScript/issues/45995
     "useDefineForClassFields": false
   },
