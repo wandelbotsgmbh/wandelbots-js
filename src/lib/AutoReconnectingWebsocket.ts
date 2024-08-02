@@ -48,6 +48,11 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
     }
   }
 
+  /**
+   * Returns a promise that resolves when the first message
+   * is received from the websocket. Resolves immediately if
+   * the first message has already been received.
+   */
   async firstMessage() {
     if (this.receivedFirstMessage) {
       return this.receivedFirstMessage
@@ -56,6 +61,29 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
     return new Promise<MessageEvent>((resolve, reject) => {
       const onMessage = (ev: MessageEvent) => {
         this.receivedFirstMessage = ev
+        this.removeEventListener("message", onMessage)
+        this.removeEventListener("error", onError)
+        resolve(ev)
+      }
+
+      const onError = (ev: ErrorEvent) => {
+        this.removeEventListener("message", onMessage)
+        this.removeEventListener("error", onError)
+        reject(ev)
+      }
+
+      this.addEventListener("message", onMessage)
+      this.addEventListener("error", onError)
+    })
+  }
+
+  /**
+   * Returns a promise that resolves when the next message
+   * is received from the websocket.
+   */
+  async nextMessage() {
+    return new Promise<MessageEvent>((resolve, reject) => {
+      const onMessage = (ev: MessageEvent) => {
         this.removeEventListener("message", onMessage)
         this.removeEventListener("error", onError)
         resolve(ev)
