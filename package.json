@@ -18,7 +18,7 @@
   "scripts": {
     "dev:pack": "nodemon -w \".\" -e ts -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
-    "build": "tsup src/index.ts --format esm,cjs --clean --dts --sourcemap",
+    "build": "tsup src/index.ts --format esm,cjs --clean --sourcemap && tsc --declaration --emitDeclarationOnly",
     "test": "npm run build && vitest run"
   },
   "repository": {
