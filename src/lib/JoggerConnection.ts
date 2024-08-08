@@ -2,6 +2,8 @@ import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { NovaClient } from "../NovaClient"
 import { makeUrlQueryString } from "./converters"
 import { MotionStreamConnection } from "./MotionStreamConnection"
+import { Command, Joints, TcpPose } from "@wandelbots/wandelbots-api-client"
+import { Vector3 } from "three"
 
 export class JoggerConnection {
   // Currently a separate websocket is needed for each mode, pester API people
@@ -217,5 +219,209 @@ export class JoggerConnection {
       tcp: this.cartesianJoggingOpts.tcpId,
       coordinate_system: this.cartesianJoggingOpts.coordSystemId,
     })
+  }
+
+  /**
+   * Move the robot by a fixed distance in a single cartesian
+   * axis, either rotating or translating relative to the TCP.
+   * Promise resolves only after the motion has completed.
+   */
+  async runIncrementalCartesianMotion({
+    currentTcpPose,
+    currentJoints,
+    coordSystemId,
+    velocityInRelevantUnits,
+    axis,
+    direction,
+    motion,
+  }: {
+    currentTcpPose: TcpPose
+    currentJoints: Joints
+    coordSystemId: string
+    velocityInRelevantUnits: number
+    axis: "x" | "y" | "z"
+    direction: "-" | "+"
+    motion:
+      | {
+          type: "rotate"
+          distanceRads: number
+        }
+      | {
+          type: "translate"
+          distanceMm: number
+        }
+  }) {
+    const commands: Command[] = []
+
+    if (motion.type === "translate") {
+      const targetTcpPosition = Object.assign({}, currentTcpPose.position)
+      targetTcpPosition[axis] +=
+        motion.distanceMm * (direction === "-" ? -1 : 1)
+
+      commands.push({
+        settings: {
+          limits_override: {
+            tcp_velocity_limit: velocityInRelevantUnits,
+          },
+        },
+        line: {
+          position: targetTcpPosition,
+          orientation: currentTcpPose.orientation,
+          coordinate_system: coordSystemId,
+        },
+      })
+    } else if (motion.type === "rotate") {
+      // Concatenate rotations expressed by rotation vectors
+      // Equations taken from https://physics.stackexchange.com/a/287819
+
+      // Compute axis and angle of current rotation vector
+      const currentRotationVector = new Vector3(
+        currentTcpPose.orientation["x"],
+        currentTcpPose.orientation["y"],
+        currentTcpPose.orientation["z"],
+      )
+
+      const currentRotationRad = currentRotationVector.length()
+      const currentRotationDirection = currentRotationVector.clone().normalize()
+
+      // Compute axis and angle of difference rotation vector
+      const differenceRotationRad =
+        motion.distanceRads * (direction === "-" ? -1 : 1)
+
+      const differenceRotationDirection = new Vector3(0.0, 0.0, 0.0)
+      differenceRotationDirection[axis] = 1.0
+
+      // Some abbreviations to make the following equations more readable
+      const f1 =
+        Math.cos(0.5 * differenceRotationRad) *
+        Math.cos(0.5 * currentRotationRad)
+      const f2 =
+        Math.sin(0.5 * differenceRotationRad) *
+        Math.sin(0.5 * currentRotationRad)
+      const f3 =
+        Math.sin(0.5 * differenceRotationRad) *
+        Math.cos(0.5 * currentRotationRad)
+      const f4 =
+        Math.cos(0.5 * differenceRotationRad) *
+        Math.sin(0.5 * currentRotationRad)
+
+      const dotProduct = differenceRotationDirection.dot(
+        currentRotationDirection,
+      )
+
+      const crossProduct = differenceRotationDirection
+        .clone()
+        .cross(currentRotationDirection)
+
+      // Compute angle of concatenated rotation
+      const newRotationRad = 2.0 * Math.acos(f1 - f2 * dotProduct)
+
+      // Compute rotation vector of concatenated rotation
+      const f5 = newRotationRad / Math.sin(0.5 * newRotationRad)
+
+      const targetTcpOrientation = new Vector3()
+        .addScaledVector(crossProduct, f2)
+        .addScaledVector(differenceRotationDirection, f3)
+        .addScaledVector(currentRotationDirection, f4)
+        .multiplyScalar(f5)
+
+      commands.push({
+        settings: {
+          limits_override: {
+            tcp_orientation_velocity_limit: velocityInRelevantUnits,
+          },
+        },
+        line: {
+          position: currentTcpPose.position,
+          orientation: targetTcpOrientation,
+          coordinate_system: coordSystemId,
+        },
+      })
+    }
+
+    const motionPlanRes = await this.nova.api.motion.planMotion({
+      motion_group: this.motionGroupId,
+      start_joint_position: currentJoints,
+      commands,
+    })
+
+    const plannedMotion = motionPlanRes.plan_successful_response?.motion
+    if (!plannedMotion) {
+      console.error("Failed to plan jogging increment motion", motionPlanRes)
+      return
+    }
+
+    await this.nova.api.motion.streamMoveForward(
+      plannedMotion,
+      {
+        playback_speed_in_percent: 100,
+        response_coordinate_system: coordSystemId,
+      },
+      {
+        // Might take a while at low velocity
+        timeout: 1000 * 60,
+      },
+    )
+  }
+
+  /**
+   * Rotate a single robot joint by a fixed number of radians
+   * Promise resolves only after the motion has completed.
+   */
+  async runIncrementalJointRotation({
+    joint,
+    currentJoints,
+    velocityRadsPerSec,
+    direction,
+    distanceRads,
+  }: {
+    joint: number
+    currentJoints: Joints
+    velocityRadsPerSec: number
+    direction: "-" | "+"
+    distanceRads: number
+  }) {
+    const targetJoints = [...currentJoints.joints]
+    targetJoints[joint] += distanceRads * (direction === "-" ? -1 : 1)
+
+    const jointVelocityLimits: number[] = new Array(
+      currentJoints.joints.length,
+    ).fill(velocityRadsPerSec)
+
+    const motionPlanRes = await this.nova.api.motion.planMotion({
+      motion_group: this.motionGroupId,
+      start_joint_position: currentJoints,
+      commands: [
+        {
+          settings: {
+            limits_override: {
+              joint_velocity_limits: {
+                joints: jointVelocityLimits,
+              },
+            },
+          },
+          joint_ptp: {
+            joints: targetJoints,
+          },
+        },
+      ],
+    })
+
+    const plannedMotion = motionPlanRes.plan_successful_response?.motion
+    if (!plannedMotion) {
+      console.error("Failed to plan jogging increment motion", motionPlanRes)
+      return
+    }
+
+    await this.nova.api.motion.streamMoveForward(
+      plannedMotion,
+      {
+        playback_speed_in_percent: 100,
+      },
+      {
+        // Might take a while at low velocity
+        timeout: 1000 * 60,
+      },
+    )
   }
 }
