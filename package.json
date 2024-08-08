@@ -41,11 +41,13 @@
     "ws": "^8.18.0"
   },
   "dependencies": {
+    "@types/three": "^0.167.1",
     "@wandelbots/wandelbots-api-client": "^0.97.0",
     "axios": "^1.7.2",
     "mobx": "^6.12.4",
     "path-to-regexp": "^7.1.0",
     "reconnecting-websocket": "^4.4.0",
+    "three": "^0.167.1",
     "url-join": "^5.0.0"
   }
 }
