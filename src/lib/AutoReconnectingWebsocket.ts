@@ -4,6 +4,7 @@ import type { MockNovaInstance } from "../mock/MockNovaInstance"
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent
   targetUrl: string
+  disposed = false
 
   constructor(
     targetUrl: string,
@@ -62,6 +63,16 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
     } else {
       this.send(JSON.stringify(data))
     }
+  }
+
+  /**
+   * Permanently close this websocket and indicate that
+   * this object should not be used again.
+   **/
+  dispose() {
+    this.close()
+    this.disposed = true
+    this.dispatchEvent(new Event("dispose"))
   }
 
   /**

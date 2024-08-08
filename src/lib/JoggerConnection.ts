@@ -103,16 +103,8 @@ export class JoggerConnection {
     }
 
     if (mode === "cartesian" && !this.cartesianWebsocket) {
-      // TODO clarify when and whether these params are needed in
-      // the query string vs. the message body
-      const queryString = makeUrlQueryString({
-        tcp: this.cartesianJoggingOpts.tcpId || "",
-        response_coordinate_system:
-          this.cartesianJoggingOpts.coordSystemId || "",
-      })
-
       this.cartesianWebsocket = this.nova.openReconnectingWebsocket(
-        `/motion-groups/move-tcp` + queryString,
+        `/motion-groups/move-tcp`,
       )
     }
 
