@@ -48,6 +48,7 @@ export class NovaClient {
   readonly api: NovaCellAPIClient
   readonly config: NovaClientConfigWithDefaults
   readonly mock?: MockNovaInstance
+  readonly websocketsByPath: Record<string, AutoReconnectingWebsocket> = {}
 
   constructor(config: NovaClientConfig) {
     const cellId = config.cellId ?? "cell"
@@ -114,12 +115,26 @@ export class NovaClient {
   }
 
   /**
-   * Opens an AutoReconnectingWebsocket to the given path on the Nova instance.
+   * Retrieve an AutoReconnectingWebsocket to the given path on the Nova instance.
+   * If this client already has an open websocket to the path, the websocket will be
+   * reused instead of opening a duplicate one.
+   * If you explicitly want to reconnect an existing websocket, call `reconnect`
+   * on the returned object.
    */
   openReconnectingWebsocket(path: string) {
-    return new AutoReconnectingWebsocket(this.makeWebsocketURL(path), {
-      mock: this.mock,
-    })
+    const existingWebsocket = this.websocketsByPath[path]
+    if (existingWebsocket) {
+      return existingWebsocket
+    } else {
+      const newWebsocket = new AutoReconnectingWebsocket(
+        this.makeWebsocketURL(path),
+        {
+          mock: this.mock,
+        },
+      )
+      this.websocketsByPath[path] = newWebsocket
+      return newWebsocket
+    }
   }
 
   /**

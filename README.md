@@ -12,6 +12,7 @@ npm install @wandelbots/wandelbots-js
 
 - [Basic usage](#basic-usage)
 - [API calls](#api-calls)
+- [Opening websockets](#opening-websockets)
 - [Jogging](#jogging)
   - [Stopping the jogger](#stopping-the-jogger)
   - [Rotating a joint](#rotating-a-joint)
@@ -47,6 +48,26 @@ const devices = await nova.api.deviceConfig.listDevices()
 ```
 
 Documentation for the various API endpoints is available on your Nova instance at `/api/v1/ui` (public documentation site is in the works)
+
+## Opening websockets
+
+`NovaClient` has various convenience features for websocket handling in general. Use `openReconnectingWebsocket` to get a persistent socket for a given Nova streaming endpoint that will handle unexpected closes with exponential backoff:
+
+```ts
+const programStateSocket = nova.openReconnectingWebsocket(`/programs/state`)
+
+this.programStateSocket.addEventListener("message", (ev) => {
+  console.log(ev.data)
+})
+```
+
+Websockets on a given Nova client are deduplicated by path, so if you call `openReconnectingWebsocket` twice with the same path you'll get the same object. The exception is if you called `dispose`, which you may do to permanently clean up a reconnecting websocket and free its resources:
+
+```ts
+programStateSocket.dispose()
+```
+
+The reconnecting websocket interface is fairly low-level and you won't get type safety on the messages. So when available, you'll likely want to use one of the following endpoint-specific abstractions instead which are built on top!
 
 ## Jogging
 
