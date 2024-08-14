@@ -334,5 +334,19 @@ const defaultMotionState = {
         joints: [0, 0, 0, 0, 0, 0],
       },
     },
+    tcp_pose: {
+      position: {
+        x: 302.90748476115556,
+        y: -152.87065869452337,
+        z: 424.0454619321661,
+      },
+      orientation: {
+        x: 2.3403056115045353,
+        y: -1.1706836379431356,
+        z: 0.9772511964246311,
+      },
+      coordinate_system: "",
+      tcp: "Flange",
+    },
   } satisfies MotionGroupStateResponse,
 }
