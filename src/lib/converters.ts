@@ -56,5 +56,5 @@ export function poseToWandelscriptString(
   // Rotation needs more precision since it's in radians
   const rotationValues = orientation.map((v) => parseFloat(v.toFixed(4)))
 
-  return `[${positionValues.concat(rotationValues).join(", ")}]`
+  return `(${positionValues.concat(rotationValues).join(", ")})`
 }
