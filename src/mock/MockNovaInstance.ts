@@ -1,7 +1,8 @@
-import { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from "axios"
+import type { InternalAxiosRequestConfig, AxiosResponse } from "axios"
+import { AxiosError } from "axios"
 import type { AutoReconnectingWebsocket } from "../lib/AutoReconnectingWebsocket"
 import * as pathToRegexp from "path-to-regexp"
-import {
+import type {
   ControllerInstanceList,
   MotionGroupSpecification,
   MotionGroupStateResponse,
@@ -200,7 +201,7 @@ export class MockNovaInstance {
     ]
 
     const method = config.method?.toUpperCase() || "GET"
-    const path = "/cells" + config.url?.split("/cells")[1].split("?")[0]
+    const path = "/cells" + config.url?.split("/cells")[1]?.split("?")[0]
 
     for (const handler of apiHandlers) {
       const match = pathToRegexp.match(handler.path)(path || "")

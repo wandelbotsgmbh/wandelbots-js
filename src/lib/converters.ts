@@ -1,4 +1,4 @@
-import { Pose } from "@wandelbots/wandelbots-api-client"
+import type { Pose } from "@wandelbots/wandelbots-api-client"
 
 /** Try to parse something as JSON; return undefined if we can't */
 export function tryParseJson(json: unknown): any {

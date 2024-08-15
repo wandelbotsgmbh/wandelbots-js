@@ -9,5 +9,5 @@ test("utility functions", async () => {
       position: { x: 1, y: 2, z: 3 },
       orientation: { x: 4, y: 5, z: 6 },
     }),
-  ).toBe("[1, 2, 3, 4, 5, 6]")
+  ).toBe("(1, 2, 3, 4, 5, 6)")
 })
