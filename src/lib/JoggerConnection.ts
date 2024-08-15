@@ -1,9 +1,22 @@
-import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import { NovaClient } from "../NovaClient"
-import { makeUrlQueryString } from "./converters"
-import { MotionStreamConnection } from "./MotionStreamConnection"
-import { Command, Joints, TcpPose } from "@wandelbots/wandelbots-api-client"
+import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
+import type { NovaClient } from "../NovaClient"
+import type { MotionStreamConnection } from "./MotionStreamConnection"
+import type {
+  Command,
+  Joints,
+  TcpPose,
+} from "@wandelbots/wandelbots-api-client"
 import { Vector3 } from "three"
+import { tryParseJson } from "./converters"
+
+export type JoggerConnectionOpts = {
+  /**
+   * When an error message is received from the jogging websocket, it
+   * will be passed here. If this handler is not provided, the error will
+   * instead be thrown as an unhandled error.
+   */
+  onError?: (err: unknown) => void
+}
 
 export class JoggerConnection {
   // Currently a separate websocket is needed for each mode, pester API people
@@ -15,13 +28,20 @@ export class JoggerConnection {
     coordSystemId?: string
   } = {}
 
-  static async open(nova: NovaClient, motionGroupId: string) {
+  static async open(
+    nova: NovaClient,
+    motionGroupId: string,
+    opts: JoggerConnectionOpts = {},
+  ) {
     const motionStream = await nova.connectMotionStream(motionGroupId)
 
-    return new JoggerConnection(motionStream)
+    return new JoggerConnection(motionStream, opts)
   }
 
-  constructor(readonly motionStream: MotionStreamConnection) {}
+  constructor(
+    readonly motionStream: MotionStreamConnection,
+    readonly opts: JoggerConnectionOpts = {},
+  ) {}
 
   get motionGroupId() {
     return this.motionStream.motionGroupId
@@ -93,12 +113,12 @@ export class JoggerConnection {
     }
 
     if (mode !== "cartesian" && this.cartesianWebsocket) {
-      this.cartesianWebsocket.close()
+      this.cartesianWebsocket.dispose()
       this.cartesianWebsocket = null
     }
 
     if (mode !== "joint" && this.jointWebsocket) {
-      this.jointWebsocket.close()
+      this.jointWebsocket.dispose()
       this.jointWebsocket = null
     }
 
@@ -106,12 +126,37 @@ export class JoggerConnection {
       this.cartesianWebsocket = this.nova.openReconnectingWebsocket(
         `/motion-groups/move-tcp`,
       )
+
+      this.cartesianWebsocket.addEventListener(
+        "message",
+        (ev: MessageEvent) => {
+          const data = tryParseJson(ev.data)
+          if (data && "error" in data) {
+            if (this.opts.onError) {
+              this.opts.onError(ev.data)
+            } else {
+              throw new Error(ev.data)
+            }
+          }
+        },
+      )
     }
 
     if (mode === "joint" && !this.jointWebsocket) {
       this.jointWebsocket = this.nova.openReconnectingWebsocket(
         `/motion-groups/move-joint`,
       )
+
+      this.jointWebsocket.addEventListener("message", (ev: MessageEvent) => {
+        const data = tryParseJson(ev.data)
+        if (data && "error" in data) {
+          if (this.opts.onError) {
+            this.opts.onError(ev.data)
+          } else {
+            throw new Error(ev.data)
+          }
+        }
+      })
     }
   }
 
@@ -374,7 +419,7 @@ export class JoggerConnection {
     distanceRads: number
   }) {
     const targetJoints = [...currentJoints.joints]
-    targetJoints[joint] += distanceRads * (direction === "-" ? -1 : 1)
+    targetJoints[joint]! += distanceRads * (direction === "-" ? -1 : 1)
 
     const jointVelocityLimits: number[] = new Array(
       currentJoints.joints.length,
