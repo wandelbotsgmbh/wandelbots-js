@@ -67,11 +67,11 @@ export class JoggerConnection {
 
   async dispose() {
     if (this.cartesianWebsocket) {
-      this.cartesianWebsocket.close()
+      this.cartesianWebsocket.dispose()
     }
 
     if (this.jointWebsocket) {
-      this.jointWebsocket.close()
+      this.jointWebsocket.dispose()
     }
   }
 
