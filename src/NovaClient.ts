@@ -130,9 +130,13 @@ export class NovaClient {
         this.makeWebsocketURL(path),
         {
           mock: this.mock,
+          onDispose: () => {
+            delete this.websocketsByPath[path]
+          },
         },
       )
       this.websocketsByPath[path] = newWebsocket
+
       return newWebsocket
     }
   }

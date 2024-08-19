@@ -26,7 +26,7 @@ test("websocket handling", async () => {
   // Unless the websocket was disposed
   ws.dispose()
   const ws3 = nova.openReconnectingWebsocket(
-    "/motion-groups/0@mock-ur5e/state-stream?tcp=foo",
+    "/motion-groups/0@mock-ur5e/state-stream",
   )
   expect(ws3).not.toBe(ws)
 })

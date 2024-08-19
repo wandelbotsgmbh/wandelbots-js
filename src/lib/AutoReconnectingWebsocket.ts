@@ -1,5 +1,6 @@
 import ReconnectingWebSocket, { type ErrorEvent } from "reconnecting-websocket"
 import type { MockNovaInstance } from "../mock/MockNovaInstance"
+import type { WebSocketEventListenerMap } from "reconnecting-websocket/dist/events"
 
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent
@@ -8,7 +9,10 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
 
   constructor(
     targetUrl: string,
-    readonly opts: { mock?: MockNovaInstance } = {},
+    readonly opts: {
+      mock?: MockNovaInstance
+      onDispose?: () => void
+    } = {},
   ) {
     console.log("Opening websocket to", targetUrl)
 
@@ -72,7 +76,9 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   dispose() {
     this.close()
     this.disposed = true
-    this.dispatchEvent(new Event("dispose"))
+    if (this.opts.onDispose) {
+      this.opts.onDispose()
+    }
   }
 
   /**
