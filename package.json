@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@types/three": "^0.167.1",
-    "@wandelbots/wandelbots-api-client": "^0.97.0",
+    "@wandelbots/wandelbots-api-client": "^24.2.0",
     "axios": "^1.7.2",
     "mobx": "^6.12.4",
     "path-to-regexp": "^7.1.0",

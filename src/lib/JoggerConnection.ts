@@ -390,10 +390,9 @@ export class JoggerConnection {
 
     await this.nova.api.motion.streamMoveForward(
       plannedMotion,
-      {
-        playback_speed_in_percent: 100,
-        response_coordinate_system: coordSystemId,
-      },
+      100,
+      undefined,
+      coordSystemId,
       {
         // Might take a while at low velocity
         timeout: 1000 * 60,
@@ -452,9 +451,9 @@ export class JoggerConnection {
 
     await this.nova.api.motion.streamMoveForward(
       plannedMotion,
-      {
-        playback_speed_in_percent: 100,
-      },
+      100,
+      undefined,
+      undefined,
       {
         // Might take a while at low velocity
         timeout: 1000 * 60,
