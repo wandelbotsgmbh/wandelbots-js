@@ -5,7 +5,6 @@ import { NovaClient } from "../dist"
 
 test("things compile and initialize", async () => {
   const nova = new NovaClient({
-    instanceUrl: "https://nova.mock",
-    mock: true,
+    instanceUrl: "https://mock.example.com",
   })
 })
