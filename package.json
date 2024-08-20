@@ -3,6 +3,7 @@
   "type": "module",
   "version": "0.0.0-semantically-released",
   "description": "Official JS client for the Wandelbots API",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": "./dist/index.js",
