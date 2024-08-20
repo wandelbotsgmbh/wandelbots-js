@@ -13,7 +13,7 @@ export type NovaClientConfig = {
    * Url of the deployed Nova instance to connect to
    * e.g. https://saeattii.instance.wandelbots.io
    */
-  instanceUrl: string
+  instanceUrl: string | "https://mock.example.com"
 
   /**
    * Identifier of the cell on the Nova instance to connect this client to.
@@ -30,13 +30,6 @@ export type NovaClientConfig = {
    * Password for basic auth to the Nova instance.
    */
   password?: string
-
-  /**
-   * EXPERIMENTAL - For testing purposes. If true, the client won't connect to a Nova
-   * instance at all, and will instead use its own internal, heavily simplified mock replica
-   * to respond to requests.
-   */
-  mock?: boolean
 } & Omit<Configuration, "isJsonMime" | "basePath">
 
 type NovaClientConfigWithDefaults = NovaClientConfig & { cellId: string }
@@ -57,7 +50,7 @@ export class NovaClient {
       ...config,
     }
 
-    if (this.config.mock) {
+    if (this.config.instanceUrl === "https://mock.example.com") {
       this.mock = new MockNovaInstance()
     }
 

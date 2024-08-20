@@ -5,8 +5,7 @@ import { NovaClient } from "../dist"
 
 test("motion stream", async () => {
   const nova = new NovaClient({
-    instanceUrl: "https://nova.mock",
-    mock: true,
+    instanceUrl: "https://mock.example.com",
   })
 
   const motionStream = await nova.connectMotionStream("0@mock-ur5e")
@@ -20,6 +19,6 @@ test("motion stream", async () => {
   await motionStream.motionStateSocket.firstMessage()
 
   expect(motionStream.motionStateSocket.url).toBe(
-    "wss://nova.mock/api/v1/cells/cell/motion-groups/0@mock-ur5e/state-stream?tcp=foo",
+    "wss://mock.example.com/api/v1/cells/cell/motion-groups/0@mock-ur5e/state-stream?tcp=foo",
   )
 })
