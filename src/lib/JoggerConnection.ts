@@ -392,7 +392,7 @@ export class JoggerConnection {
       plannedMotion,
       100,
       undefined,
-      coordSystemId,
+      undefined,
       {
         // Might take a while at low velocity
         timeout: 1000 * 60,
