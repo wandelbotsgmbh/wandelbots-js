@@ -384,8 +384,9 @@ export class JoggerConnection {
 
     const plannedMotion = motionPlanRes.plan_successful_response?.motion
     if (!plannedMotion) {
-      console.error("Failed to plan jogging increment motion", motionPlanRes)
-      return
+      throw new Error(
+        `Failed to plan jogging increment motion ${JSON.stringify(motionPlanRes)}`,
+      )
     }
 
     await this.nova.api.motion.streamMoveForward(
