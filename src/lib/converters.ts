@@ -58,3 +58,17 @@ export function poseToWandelscriptString(
 
   return `(${positionValues.concat(rotationValues).join(", ")})`
 }
+
+/**
+ * Check for coordinate system id equivalence, accounting for the "world" default
+ * on empty/undefined values.
+ */
+export function isSameCoordinateSystem(
+  firstCoordSystem: string | undefined,
+  secondCoordSystem: string | undefined,
+) {
+  if (!firstCoordSystem) firstCoordSystem = "world"
+  if (!secondCoordSystem) secondCoordSystem = "world"
+
+  return firstCoordSystem === secondCoordSystem
+}

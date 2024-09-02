@@ -7,7 +7,7 @@ import type {
   TcpPose,
 } from "@wandelbots/wandelbots-api-client"
 import { Vector3 } from "three/src/math/Vector3.js"
-import { tryParseJson } from "./converters"
+import { isSameCoordinateSystem, tryParseJson } from "./converters"
 
 export type JoggerConnectionOpts = {
   /**
@@ -289,6 +289,14 @@ export class JoggerConnection {
         }
   }) {
     const commands: Command[] = []
+
+    if (
+      !isSameCoordinateSystem(currentTcpPose.coordinate_system, coordSystemId)
+    ) {
+      throw new Error(
+        `Current TCP pose coordinate system ${currentTcpPose.coordinate_system} does not match target coordinate system ${coordSystemId}`,
+      )
+    }
 
     if (motion.type === "translate") {
       const targetTcpPosition = Object.assign({}, currentTcpPose.position)
