@@ -8,6 +8,7 @@ import type {
 } from "@wandelbots/wandelbots-api-client"
 import { Vector3 } from "three/src/math/Vector3.js"
 import { isSameCoordinateSystem, tryParseJson } from "./converters"
+import isEqual from "lodash-es/isEqual"
 
 export type JoggerConnectionOpts = {
   /**
@@ -65,16 +66,6 @@ export class JoggerConnection {
     return this.cartesianWebsocket || this.jointWebsocket
   }
 
-  async dispose() {
-    if (this.cartesianWebsocket) {
-      this.cartesianWebsocket.dispose()
-    }
-
-    if (this.jointWebsocket) {
-      this.jointWebsocket.dispose()
-    }
-  }
-
   async stop() {
     // Why not call the stopJogging API endpoint?
     // Because this results in the websocket closing and we
@@ -109,6 +100,14 @@ export class JoggerConnection {
   ) {
     console.log("Setting jogging mode to", mode)
     if (cartesianJoggingOpts) {
+      // Websocket needs to be reopened to change options
+      if (!isEqual(this.cartesianJoggingOpts, cartesianJoggingOpts)) {
+        if (this.cartesianWebsocket) {
+          this.cartesianWebsocket.dispose()
+          this.cartesianWebsocket = null
+        }
+      }
+
       this.cartesianJoggingOpts = cartesianJoggingOpts
     }
 
