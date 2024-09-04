@@ -8,8 +8,8 @@ import type {
   SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
 import { makeAutoObservable, runInAction } from "mobx"
-import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import { NovaClient } from "../NovaClient"
+import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
+import type { NovaClient } from "../NovaClient"
 import { AxiosError } from "axios"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
 
