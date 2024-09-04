@@ -91,6 +91,16 @@ export class JoggerConnection {
     }
   }
 
+  dispose() {
+    if (this.cartesianWebsocket) {
+      this.cartesianWebsocket.dispose()
+    }
+
+    if (this.jointWebsocket) {
+      this.jointWebsocket.dispose()
+    }
+  }
+
   setJoggingMode(
     mode: "cartesian" | "joint" | "increment",
     cartesianJoggingOpts?: {

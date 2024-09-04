@@ -1,6 +1,5 @@
 import ReconnectingWebSocket, { type ErrorEvent } from "reconnecting-websocket"
 import type { MockNovaInstance } from "../mock/MockNovaInstance"
-import type { WebSocketEventListenerMap } from "reconnecting-websocket/dist/events"
 
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent
@@ -79,6 +78,34 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
     if (this.opts.onDispose) {
       this.opts.onDispose()
     }
+  }
+
+  /**
+   * Returns a promise that resolves once the websocket
+   * is in the OPEN state. */
+  async opened() {
+    return new Promise<void>((resolve, reject) => {
+      if (this.readyState === WebSocket.OPEN) {
+        resolve()
+      } else {
+        this.addEventListener("open", () => resolve())
+        this.addEventListener("error", reject)
+      }
+    })
+  }
+
+  /**
+   * Returns a promise that resolves once the websocket
+   * is in the CLOSED state. */
+  async closed() {
+    return new Promise<void>((resolve, reject) => {
+      if (this.readyState === WebSocket.CLOSED) {
+        resolve()
+      } else {
+        this.addEventListener("close", () => resolve())
+        this.addEventListener("error", reject)
+      }
+    })
   }
 
   /**
