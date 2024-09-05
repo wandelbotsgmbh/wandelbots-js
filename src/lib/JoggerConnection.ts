@@ -396,6 +396,7 @@ export class JoggerConnection {
     const motionPlanRes = await this.nova.api.motion.planMotion({
       motion_group: this.motionGroupId,
       start_joint_position: currentJoints,
+      tcp: this.cartesianJoggingOpts.tcpId,
       commands,
     })
 
