@@ -6,6 +6,7 @@ import type {
   ControllerInstanceList,
   MotionGroupSpecification,
   MotionGroupStateResponse,
+  SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
 
 /**
@@ -133,6 +134,730 @@ export class MockNovaInstance {
               },
             ],
           } satisfies MotionGroupSpecification
+        },
+      },
+      {
+        method: "GET",
+        path: "/cells/:cellId/motion-groups/:motionGroupId/safety-setup",
+        handle() {
+          return {
+            safety_settings: [
+              {
+                safety_state: "SAFETY_NORMAL",
+                settings: {
+                  joint_position_limits: [
+                    {
+                      joint: "JOINTNAME_AXIS_1",
+                      lower_limit: -2.96705961227417,
+                      upper_limit: 2.96705961227417,
+                      unlimited: false,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_2",
+                      lower_limit: -1.7453292608261108,
+                      upper_limit: 2.7925267219543457,
+                      unlimited: false,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_3",
+                      lower_limit: -3.3161256313323975,
+                      upper_limit: 0.40142571926116943,
+                      unlimited: false,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_4",
+                      lower_limit: -3.4906585216522217,
+                      upper_limit: 3.4906585216522217,
+                      unlimited: false,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_5",
+                      lower_limit: -2.4434609413146973,
+                      upper_limit: 2.4434609413146973,
+                      unlimited: false,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_6",
+                      lower_limit: -4.71238899230957,
+                      upper_limit: 4.71238899230957,
+                      unlimited: false,
+                    },
+                  ],
+                  joint_velocity_limits: [
+                    {
+                      joint: "JOINTNAME_AXIS_1",
+                      limit: 3.1415927410125732,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_2",
+                      limit: 3.1415927410125732,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_3",
+                      limit: 3.4906585216522217,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_4",
+                      limit: 6.108652591705322,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_5",
+                      limit: 6.108652591705322,
+                    },
+                    {
+                      joint: "JOINTNAME_AXIS_6",
+                      limit: 6.981317043304443,
+                    },
+                  ],
+                  joint_acceleration_limits: [],
+                  joint_torque_limits: [],
+                  tcp_velocity_limit: 1800,
+                },
+              },
+            ],
+            safety_zones: [
+              {
+                id: 1,
+                priority: 0,
+                geometry: {
+                  compound: {
+                    child_geometries: [
+                      {
+                        convex_hull: {
+                          vertices: [
+                            {
+                              x: -800,
+                              y: -1330,
+                              z: -1820,
+                            },
+                            {
+                              x: 1650,
+                              y: -1330,
+                              z: -1820,
+                            },
+                            {
+                              x: 1650,
+                              y: 1330,
+                              z: -1820,
+                            },
+                            {
+                              x: -800,
+                              y: 1330,
+                              z: -1820,
+                            },
+                          ],
+                        },
+                        init_pose: {
+                          position: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                          },
+                          orientation: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                            w: 1,
+                          },
+                        },
+                        id: "box",
+                      },
+                      {
+                        convex_hull: {
+                          vertices: [
+                            {
+                              x: -800,
+                              y: -1330,
+                              z: -1820,
+                            },
+                            {
+                              x: 1650,
+                              y: -1330,
+                              z: -1820,
+                            },
+                            {
+                              x: 1650,
+                              y: -1330,
+                              z: 1500,
+                            },
+                            {
+                              x: -800,
+                              y: -1330,
+                              z: 1500,
+                            },
+                          ],
+                        },
+                        init_pose: {
+                          position: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                          },
+                          orientation: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                            w: 1,
+                          },
+                        },
+                        id: "box",
+                      },
+                      {
+                        convex_hull: {
+                          vertices: [
+                            {
+                              x: -800,
+                              y: -1330,
+                              z: -1820,
+                            },
+                            {
+                              x: -800,
+                              y: 1330,
+                              z: -1820,
+                            },
+                            {
+                              x: -800,
+                              y: 1330,
+                              z: 1500,
+                            },
+                            {
+                              x: -800,
+                              y: -1330,
+                              z: 1500,
+                            },
+                          ],
+                        },
+                        init_pose: {
+                          position: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                          },
+                          orientation: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                            w: 1,
+                          },
+                        },
+                        id: "box",
+                      },
+                      {
+                        convex_hull: {
+                          vertices: [
+                            {
+                              x: 1650,
+                              y: 1330,
+                              z: 1500,
+                            },
+                            {
+                              x: -800,
+                              y: 1330,
+                              z: 1500,
+                            },
+                            {
+                              x: -800,
+                              y: -1330,
+                              z: 1500,
+                            },
+                            {
+                              x: 1650,
+                              y: -1330,
+                              z: 1500,
+                            },
+                          ],
+                        },
+                        init_pose: {
+                          position: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                          },
+                          orientation: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                            w: 1,
+                          },
+                        },
+                        id: "box",
+                      },
+                      {
+                        convex_hull: {
+                          vertices: [
+                            {
+                              x: 1650,
+                              y: 1330,
+                              z: 1500,
+                            },
+                            {
+                              x: -800,
+                              y: 1330,
+                              z: 1500,
+                            },
+                            {
+                              x: -800,
+                              y: 1330,
+                              z: -1820,
+                            },
+                            {
+                              x: 1650,
+                              y: 1330,
+                              z: -1820,
+                            },
+                          ],
+                        },
+                        init_pose: {
+                          position: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                          },
+                          orientation: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                            w: 1,
+                          },
+                        },
+                        id: "box",
+                      },
+                      {
+                        convex_hull: {
+                          vertices: [
+                            {
+                              x: 1650,
+                              y: 1330,
+                              z: 1500,
+                            },
+                            {
+                              x: 1650,
+                              y: -1330,
+                              z: 1500,
+                            },
+                            {
+                              x: 1650,
+                              y: -1330,
+                              z: -1820,
+                            },
+                            {
+                              x: 1650,
+                              y: 1330,
+                              z: -1820,
+                            },
+                          ],
+                        },
+                        init_pose: {
+                          position: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                          },
+                          orientation: {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                            w: 1,
+                          },
+                        },
+                        id: "box",
+                      },
+                    ],
+                  },
+                  init_pose: {
+                    position: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "Cell workzone",
+                },
+                motion_group_uid: 1,
+              },
+              {
+                id: 2,
+                priority: 0,
+                geometry: {
+                  convex_hull: {
+                    vertices: [
+                      {
+                        x: 1650,
+                        y: 1330,
+                        z: -1850,
+                      },
+                      {
+                        x: 865,
+                        y: 1330,
+                        z: -1850,
+                      },
+                      {
+                        x: 865,
+                        y: -720,
+                        z: -1850,
+                      },
+                      {
+                        x: 1650,
+                        y: -720,
+                        z: -1850,
+                      },
+                      {
+                        x: 1650,
+                        y: 1330,
+                        z: -920,
+                      },
+                      {
+                        x: 865,
+                        y: 1330,
+                        z: -920,
+                      },
+                      {
+                        x: 865,
+                        y: -720,
+                        z: -920,
+                      },
+                      {
+                        x: 1650,
+                        y: -720,
+                        z: -920,
+                      },
+                    ],
+                  },
+                  init_pose: {
+                    position: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "Transport",
+                },
+                motion_group_uid: 1,
+              },
+              {
+                id: 3,
+                priority: 0,
+                geometry: {
+                  convex_hull: {
+                    vertices: [
+                      {
+                        x: 1650,
+                        y: 1330,
+                        z: -600,
+                      },
+                      {
+                        x: 865,
+                        y: 1330,
+                        z: -600,
+                      },
+                      {
+                        x: 865,
+                        y: 430,
+                        z: -600,
+                      },
+                      {
+                        x: 1650,
+                        y: 430,
+                        z: -600,
+                      },
+                      {
+                        x: 1650,
+                        y: 1330,
+                        z: -1250,
+                      },
+                      {
+                        x: 865,
+                        y: 1330,
+                        z: -1250,
+                      },
+                      {
+                        x: 865,
+                        y: 430,
+                        z: -1250,
+                      },
+                      {
+                        x: 1650,
+                        y: 430,
+                        z: -1250,
+                      },
+                    ],
+                  },
+                  init_pose: {
+                    position: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "Tunel",
+                },
+                motion_group_uid: 1,
+              },
+              {
+                id: 4,
+                priority: 0,
+                geometry: {
+                  convex_hull: {
+                    vertices: [
+                      {
+                        x: 1650,
+                        y: -760,
+                        z: -440,
+                      },
+                      {
+                        x: 900,
+                        y: -760,
+                        z: -440,
+                      },
+                      {
+                        x: 900,
+                        y: -1330,
+                        z: -440,
+                      },
+                      {
+                        x: 1650,
+                        y: -1330,
+                        z: -440,
+                      },
+                      {
+                        x: 1650,
+                        y: -760,
+                        z: -1800,
+                      },
+                      {
+                        x: 900,
+                        y: -760,
+                        z: -1800,
+                      },
+                      {
+                        x: 900,
+                        y: -1330,
+                        z: -1800,
+                      },
+                      {
+                        x: 1650,
+                        y: -1330,
+                        z: -1800,
+                      },
+                    ],
+                  },
+                  init_pose: {
+                    position: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "Fanuc controller",
+                },
+                motion_group_uid: 1,
+              },
+              {
+                id: 6,
+                priority: 0,
+                geometry: {
+                  convex_hull: {
+                    vertices: [
+                      {
+                        x: -200,
+                        y: -200,
+                        z: -1900,
+                      },
+                      {
+                        x: 200,
+                        y: -200,
+                        z: -1900,
+                      },
+                      {
+                        x: 200,
+                        y: 200,
+                        z: -1900,
+                      },
+                      {
+                        x: -200,
+                        y: 200,
+                        z: -1900,
+                      },
+                      {
+                        x: -200,
+                        y: -200,
+                        z: -350,
+                      },
+                      {
+                        x: 200,
+                        y: -200,
+                        z: -350,
+                      },
+                      {
+                        x: 200,
+                        y: 200,
+                        z: -350,
+                      },
+                      {
+                        x: -200,
+                        y: 200,
+                        z: -350,
+                      },
+                    ],
+                  },
+                  init_pose: {
+                    position: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "Robot base",
+                },
+                motion_group_uid: 1,
+              },
+            ],
+            robot_model_geometries: [
+              {
+                link_index: 1,
+                geometry: {
+                  sphere: {
+                    radius: 270,
+                  },
+                  init_pose: {
+                    position: {
+                      x: -70,
+                      y: -70,
+                      z: -50,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "link1_sphere",
+                },
+              },
+              {
+                link_index: 2,
+                geometry: {
+                  capsule: {
+                    radius: 160,
+                    cylinder_height: 800,
+                  },
+                  init_pose: {
+                    position: {
+                      x: -450,
+                      y: 40,
+                      z: 170,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: -0.7071067811865475,
+                      z: 0,
+                      w: 0.7071067811865476,
+                    },
+                  },
+                  id: "link2_capsule",
+                },
+              },
+              {
+                link_index: 3,
+                geometry: {
+                  sphere: {
+                    radius: 270,
+                  },
+                  init_pose: {
+                    position: {
+                      x: -110,
+                      y: 10,
+                      z: -100,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "link3_sphere",
+                },
+              },
+              {
+                link_index: 4,
+                geometry: {
+                  capsule: {
+                    radius: 110,
+                    cylinder_height: 600,
+                  },
+                  init_pose: {
+                    position: {
+                      x: 0,
+                      y: 300,
+                      z: 40,
+                    },
+                    orientation: {
+                      x: -0.7071067811865475,
+                      y: 0,
+                      z: 0,
+                      w: 0.7071067811865476,
+                    },
+                  },
+                  id: "link4_capsule",
+                },
+              },
+              {
+                link_index: 5,
+                geometry: {
+                  sphere: {
+                    radius: 75,
+                  },
+                  init_pose: {
+                    position: {
+                      x: 0,
+                      y: 0,
+                      z: -50,
+                    },
+                    orientation: {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      w: 1,
+                    },
+                  },
+                  id: "link5_sphere",
+                },
+              },
+            ],
+            tool_geometries: [],
+          } satisfies SafetySetup
         },
       },
       {
