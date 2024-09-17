@@ -1,7 +1,7 @@
 import { AxiosError } from "axios"
+import type { NovaClient } from "../NovaClient"
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { tryParseJson } from "./converters"
-import type { NovaClient } from "../NovaClient"
 import type { MotionStreamConnection } from "./MotionStreamConnection"
 
 export type ProgramRunnerLogEntry = {
