@@ -1,13 +1,13 @@
-import type { InternalAxiosRequestConfig, AxiosResponse } from "axios"
-import { AxiosError } from "axios"
-import type { AutoReconnectingWebsocket } from "../lib/AutoReconnectingWebsocket"
-import * as pathToRegexp from "path-to-regexp"
 import type {
   ControllerInstanceList,
   MotionGroupSpecification,
   MotionGroupStateResponse,
   SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
+import type { AxiosResponse, InternalAxiosRequestConfig } from "axios"
+import { AxiosError } from "axios"
+import * as pathToRegexp from "path-to-regexp"
+import type { AutoReconnectingWebsocket } from "../lib/AutoReconnectingWebsocket"
 
 /**
  * EXPERIMENTAL
@@ -975,6 +975,214 @@ export class MockNovaInstance {
         socket.dispatchEvent(
           new MessageEvent("message", {
             data: JSON.stringify(defaultMotionState),
+          }),
+        )
+      }
+
+      if (socket.url.includes("/move-joint")) {
+        socket.dispatchEvent(
+          new MessageEvent("message", {
+            data: JSON.stringify({
+              result: {
+                motion_group: "0@ur",
+                state: {
+                  controller: "ur",
+                  operation_mode: "OPERATION_MODE_AUTO",
+                  safety_state: "SAFETY_STATE_NORMAL",
+                  timestamp: "2024-09-18T12:48:26.096266444Z",
+                  velocity_override: 100,
+                  motion_groups: [
+                    {
+                      motion_group: "0@ur",
+                      controller: "ur",
+                      joint_position: {
+                        joints: [
+                          1.3492152690887451, -1.5659207105636597,
+                          1.6653711795806885, -1.0991662740707397,
+                          -1.829018235206604, 1.264623761177063,
+                        ],
+                      },
+                      joint_velocity: {
+                        joints: [0, 0, 0, 0, 0, 0],
+                      },
+                      flange_pose: {
+                        position: {
+                          x: 6.437331889439328,
+                          y: -628.4123774830913,
+                          z: 577.0569957147832,
+                        },
+                        orientation: {
+                          x: -1.683333649797158,
+                          y: -1.9783363827298732,
+                          z: -0.4928031860165713,
+                        },
+                        coordinate_system: "",
+                      },
+                      tcp_pose: {
+                        position: {
+                          x: 6.437331889439328,
+                          y: -628.4123774830913,
+                          z: 577.0569957147832,
+                        },
+                        orientation: {
+                          x: -1.683333649797158,
+                          y: -1.9783363827298732,
+                          z: -0.4928031860165713,
+                        },
+                        coordinate_system: "",
+                        tcp: "Flange",
+                      },
+                      velocity: {
+                        linear: {
+                          x: 0,
+                          y: 0,
+                          z: 0,
+                        },
+                        angular: {
+                          x: -0,
+                          y: 0,
+                          z: 0,
+                        },
+                        coordinate_system: "",
+                      },
+                      force: {
+                        force: {
+                          x: 0,
+                          y: 0,
+                          z: 0,
+                        },
+                        moment: {
+                          x: 0,
+                          y: 0,
+                          z: 0,
+                        },
+                        coordinate_system: "",
+                      },
+                      joint_limit_reached: {
+                        limit_reached: [
+                          false,
+                          false,
+                          false,
+                          false,
+                          false,
+                          false,
+                        ],
+                      },
+                      joint_current: {
+                        joints: [0, 0, 0, 0, 0, 0],
+                      },
+                      sequence_number: "671259",
+                    },
+                  ],
+                  sequence_number: "671259",
+                },
+                movement_state: "MOVEMENT_STATE_MOVING",
+              },
+            }),
+          }),
+        )
+      }
+
+      if (socket.url.includes("/move-tcp")) {
+        socket.dispatchEvent(
+          new MessageEvent("message", {
+            data: JSON.stringify({
+              result: {
+                motion_group: "0@ur",
+                state: {
+                  controller: "ur",
+                  operation_mode: "OPERATION_MODE_AUTO",
+                  safety_state: "SAFETY_STATE_NORMAL",
+                  timestamp: "2024-09-18T12:43:12.188335774Z",
+                  velocity_override: 100,
+                  motion_groups: [
+                    {
+                      motion_group: "0@ur",
+                      controller: "ur",
+                      joint_position: {
+                        joints: [
+                          1.3352527618408203, -1.5659207105636597,
+                          1.6653711795806885, -1.110615611076355,
+                          -1.829018235206604, 1.264623761177063,
+                        ],
+                      },
+                      joint_velocity: {
+                        joints: [0, 0, 0, 0, 0, 0],
+                      },
+                      flange_pose: {
+                        position: {
+                          x: -2.763015284002938,
+                          y: -630.2151479701106,
+                          z: 577.524509114342,
+                        },
+                        orientation: {
+                          x: -1.704794877102097,
+                          y: -1.9722372952861567,
+                          z: -0.4852079204210754,
+                        },
+                        coordinate_system: "",
+                      },
+                      tcp_pose: {
+                        position: {
+                          x: -2.763015284002938,
+                          y: -630.2151479701106,
+                          z: 577.524509114342,
+                        },
+                        orientation: {
+                          x: -1.704794877102097,
+                          y: -1.9722372952861567,
+                          z: -0.4852079204210754,
+                        },
+                        coordinate_system: "",
+                        tcp: "Flange",
+                      },
+                      velocity: {
+                        linear: {
+                          x: 0,
+                          y: 0,
+                          z: 0,
+                        },
+                        angular: {
+                          x: -0,
+                          y: 0,
+                          z: 0,
+                        },
+                        coordinate_system: "",
+                      },
+                      force: {
+                        force: {
+                          x: 0,
+                          y: 0,
+                          z: 0,
+                        },
+                        moment: {
+                          x: 0,
+                          y: 0,
+                          z: 0,
+                        },
+                        coordinate_system: "",
+                      },
+                      joint_limit_reached: {
+                        limit_reached: [
+                          false,
+                          false,
+                          false,
+                          false,
+                          false,
+                          false,
+                        ],
+                      },
+                      joint_current: {
+                        joints: [0, 0, 0, 0, 0, 0],
+                      },
+                      sequence_number: "627897",
+                    },
+                  ],
+                  sequence_number: "627897",
+                },
+                movement_state: "MOVEMENT_STATE_MOVING",
+              },
+            }),
           }),
         )
       }
