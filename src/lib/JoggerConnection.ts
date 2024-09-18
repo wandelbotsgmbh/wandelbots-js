@@ -1,14 +1,14 @@
-import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import type { NovaClient } from "../NovaClient"
-import type { MotionStreamConnection } from "./MotionStreamConnection"
 import type {
   Command,
   Joints,
   TcpPose,
 } from "@wandelbots/wandelbots-api-client"
-import { Vector3 } from "three/src/math/Vector3.js"
-import { isSameCoordinateSystem, tryParseJson } from "./converters"
 import isEqual from "lodash-es/isEqual"
+import { Vector3 } from "three/src/math/Vector3.js"
+import type { NovaClient } from "../NovaClient"
+import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
+import { isSameCoordinateSystem, tryParseJson } from "./converters"
+import type { MotionStreamConnection } from "./MotionStreamConnection"
 
 export type JoggerConnectionOpts = {
   /**
@@ -412,6 +412,7 @@ export class JoggerConnection {
       100,
       undefined,
       undefined,
+      undefined,
       {
         // Might take a while at low velocity
         timeout: 1000 * 60,
@@ -471,6 +472,7 @@ export class JoggerConnection {
     await this.nova.api.motion.streamMoveForward(
       plannedMotion,
       100,
+      undefined,
       undefined,
       undefined,
       {
