@@ -1,12 +1,12 @@
 import type { Configuration } from "@wandelbots/wandelbots-api-client"
-import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
+import type { AxiosRequestConfig } from "axios"
 import urlJoin from "url-join"
 import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
-import type { AxiosRequestConfig } from "axios"
+import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
 import { JoggerConnection } from "./lib/JoggerConnection"
 import { MotionStreamConnection } from "./lib/MotionStreamConnection"
+import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
 import { MockNovaInstance } from "./mock/MockNovaInstance"
-import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
 
 export type NovaClientConfig = {
   /**
@@ -41,7 +41,6 @@ export class NovaClient {
   readonly api: NovaCellAPIClient
   readonly config: NovaClientConfigWithDefaults
   readonly mock?: MockNovaInstance
-  readonly websocketsByPath: Record<string, AutoReconnectingWebsocket> = {}
 
   constructor(config: NovaClientConfig) {
     const cellId = config.cellId ?? "cell"
@@ -115,23 +114,9 @@ export class NovaClient {
    * on the returned object.
    */
   openReconnectingWebsocket(path: string) {
-    const existingWebsocket = this.websocketsByPath[path]
-    if (existingWebsocket) {
-      return existingWebsocket
-    } else {
-      const newWebsocket = new AutoReconnectingWebsocket(
-        this.makeWebsocketURL(path),
-        {
-          mock: this.mock,
-          onDispose: () => {
-            delete this.websocketsByPath[path]
-          },
-        },
-      )
-      this.websocketsByPath[path] = newWebsocket
-
-      return newWebsocket
-    }
+    return new AutoReconnectingWebsocket(this.makeWebsocketURL(path), {
+      mock: this.mock,
+    })
   }
 
   /**
