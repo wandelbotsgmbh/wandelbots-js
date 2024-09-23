@@ -1,12 +1,12 @@
-import { tryParseJson } from "./converters"
 import type {
   ControllerInstance,
   MotionGroupPhysical,
   MotionGroupStateResponse,
 } from "@wandelbots/wandelbots-api-client"
 import { makeAutoObservable, runInAction } from "mobx"
-import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import { NovaClient } from "../NovaClient"
+import type { NovaClient } from "../NovaClient"
+import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
+import { tryParseJson } from "./converters"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
