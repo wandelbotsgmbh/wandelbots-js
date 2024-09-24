@@ -7,18 +7,22 @@ This library provides convenient access to the Wandelbots API from frontend Java
 ```bash
 npm install @wandelbots/wandelbots-js
 ```
+If you develop an react application we also provide a set of [react components](https://github.com/wandelbotsgmbh/wandelbots-js-react-components) which you can use together with this library.
 
 ## Table of contents
 
 - [Basic usage](#basic-usage)
 - [API calls](#api-calls)
 - [Opening websockets](#opening-websockets)
+- [Connect to a motion group](#connect-to-a-motion-group)
+- [Execute Wandelscript](#execute-wandelscript)
 - [Jogging](#jogging)
   - [Stopping the jogger](#stopping-the-jogger)
   - [Rotating a joint](#rotating-a-joint)
   - [Moving a TCP](#moving-the-tcp)
   - [Rotating a TCP](#rotating-the-tcp)
   - [Post-jogging cleanup](#post-jogging-cleanup)
+  - [Jogging UI Panel](#jogging-ui-panel)
 
 ## Basic usage
 
@@ -29,6 +33,7 @@ import { NovaClient } from "@wandelbots/wandelbots-js"
 
 const nova = new NovaClient({
   instanceUrl: "https://example.instance.wandelbots.io",
+  cellId: "cell",
 
   // Auth details come from the developer portal when you create an instance
   username: "wb",
@@ -68,6 +73,34 @@ programStateSocket.dispose()
 ```
 
 The reconnecting websocket interface is fairly low-level and you won't get type safety on the messages. So when available, you'll likely want to use one of the following endpoint-specific abstractions instead which are built on top!
+
+## Connect to a motion group
+
+The library provides an easy to use way to access properties of a motion group.
+
+```ts
+activeRobot = await this.nova.connectMotionGroup(`some-motion-group-id`)
+```
+
+This connected motion group opens a websocket and listens to changes of the current joints and the TCP pose. You can read out those values by using the `rapidlyChangingMotionState` of the object. Along other properties it also provides the current `safetySetup` and `tcps`. 
+
+```ts
+const newJoints = activeRobot.rapidlyChangingMotionState.state.joint_position.joints
+```
+
+To render a visual representation, you can use the `robot` component of the [react components](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/3d-view-robot--docs). 
+
+## Execute Wandelscript
+
+The `ProgramStateConnection` provides an object which allows to execute and stop a given Wandelscript. 
+
+```ts
+import script from "./example.ws"
+...
+programRunner.executeProgram(script)
+```
+
+You can `stop` the current execution or listen to state updates of your wandelscript code by observing the `programRunner.executionState`.
 
 ## Jogging
 
@@ -148,6 +181,10 @@ await jogger.dispose()
 ```
 
 This will close any open websockets and ensure things are left in a good state.
+
+### Jogging UI Panel
+
+You can use the [Jogging Panel](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/jogging-joggingpanel--docs) from the [react components](https://github.com/wandelbotsgmbh/wandelbots-js-react-components) library to get a easy to use visualization component.
 
 ## Contributing
 
