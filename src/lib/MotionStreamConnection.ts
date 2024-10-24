@@ -2,14 +2,55 @@ import type {
   ControllerInstance,
   MotionGroupPhysical,
   MotionGroupStateResponse,
+  Vector3d,
 } from "@wandelbots/wandelbots-api-client"
 import { makeAutoObservable, runInAction } from "mobx"
+import { Vector3 } from "three"
 import type { NovaClient } from "../NovaClient"
 import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { tryParseJson } from "./converters"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
+
+function unwrapRotationVector(
+  newRotationVectorApi: Vector3d,
+  currentRotationVectorApi: Vector3d,
+): Vector3d {
+  const currentRotationVector = new Vector3(
+    currentRotationVectorApi.x,
+    currentRotationVectorApi.y,
+    currentRotationVectorApi.z,
+  )
+
+  const newRotationVector = new Vector3(
+    newRotationVectorApi.x,
+    newRotationVectorApi.y,
+    newRotationVectorApi.z,
+  )
+
+  const currentAngle = currentRotationVector.length()
+  const currentAxis = currentRotationVector.normalize()
+
+  let newAngle = newRotationVector.length()
+  let newAxis = newRotationVector.normalize()
+
+  // Align rotation axes
+  if (newAxis.dot(currentAxis) < 0) {
+    newAngle = -newAngle
+    newAxis = newAxis.multiplyScalar(-1.0)
+  }
+
+  // Shift rotation angle close to previous one to extend domain of rotation angles beyond [0, pi]
+  // - this simplifies interpolation and prevents abruptly changing signs of the rotation angles
+  let angleDifference = newAngle - currentAngle
+  angleDifference -=
+    2.0 * Math.PI * Math.floor((angleDifference + Math.PI) / (2.0 * Math.PI))
+
+  newAngle = currentAngle + angleDifference
+
+  return newAxis.multiplyScalar(newAngle)
+}
 
 /**
  * Store representing the current state of a connected motion group.
@@ -109,8 +150,21 @@ export class MotionStreamConnection {
         )
       ) {
         runInAction(() => {
-          this.rapidlyChangingMotionState.tcp_pose =
-            motionStateResponse.tcp_pose
+          if (this.rapidlyChangingMotionState.tcp_pose == undefined) {
+            this.rapidlyChangingMotionState.tcp_pose =
+              motionStateResponse.tcp_pose
+          } else {
+            this.rapidlyChangingMotionState.tcp_pose = {
+              position: motionStateResponse.tcp_pose!.position,
+              orientation: unwrapRotationVector(
+                motionStateResponse.tcp_pose!.orientation,
+                this.rapidlyChangingMotionState.tcp_pose!.orientation,
+              ),
+              tcp: motionStateResponse.tcp_pose!.tcp,
+              coordinate_system:
+                motionStateResponse.tcp_pose!.coordinate_system,
+            }
+          }
         })
       }
     })
