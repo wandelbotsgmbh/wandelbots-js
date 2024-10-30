@@ -30,6 +30,11 @@ export type NovaClientConfig = {
    * Password for basic auth to the Nova instance.
    */
   password?: string
+
+  /**
+   * Access token for Bearer authentication.
+   */
+  accessToken?: string
 } & Omit<Configuration, "isJsonMime" | "basePath">
 
 type NovaClientConfigWithDefaults = NovaClientConfig & { cellId: string }
@@ -53,6 +58,14 @@ export class NovaClient {
       this.mock = new MockNovaInstance()
     }
 
+    // Set up headers based on available authentication credentials
+    const headers: Record<string, string> = {}
+    if (config.accessToken) {
+      headers.Authorization = `Bearer ${config.accessToken}`
+    } else if (config.username && config.password) {
+      headers.Authorization = `Basic ${btoa(config.username + ":" + config.password)}`
+    }
+
     this.api = new NovaCellAPIClient(cellId, {
       ...config,
       basePath: urlJoin(this.config.instanceUrl, "/api/v1"),
@@ -66,16 +79,8 @@ export class NovaClient {
               },
             } satisfies AxiosRequestConfig)
           : {}),
+        headers,
         ...config.baseOptions,
-        // Add basic auth to all axios requests if username and password are provided
-        ...(config.username && config.password
-          ? ({
-              headers: {
-                Authorization:
-                  "Basic " + btoa(config.username + ":" + config.password),
-              },
-            } satisfies AxiosRequestConfig)
-          : {}),
       },
     })
   }
@@ -96,9 +101,11 @@ export class NovaClient {
     url.protocol = url.protocol.replace("https", "wss")
 
     // If provided, add basic auth credentials to the URL
-    // TODO - basic auth is deprecated on websockets and doesn't work in Safari
-    // need a better solution on the backend
-    if (this.config.username && this.config.password) {
+    // NOTE - basic auth is deprecated on websockets and doesn't work in Safari
+    // use tokens instead
+    if (this.config.accessToken) {
+      url.searchParams.append("token", this.config.accessToken)
+    } else if (this.config.username && this.config.password) {
       url.username = this.config.username
       url.password = this.config.password
     }
