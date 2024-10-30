@@ -38,20 +38,18 @@ export const isLoginRequired = (instanceUrl: string): boolean => {
 
 /**
  * Initializes Auth0 login process using redirect if necessary and retrieves an access token.
+ * Stops the process if login is not required or if NOVA_USERNAME and NOVA_PASSWORD are set.
  */
 export const loginWithAuth0 = async (
   instanceUrl: string,
+  forceAuthLogin: boolean = false,
 ): Promise<string | null> => {
-  // Check if login is required
-  if (!isLoginRequired(instanceUrl)) {
-    console.log("Login not required for this instance.")
-    return null
-  }
-
-  // Check if NOVA_USERNAME and NOVA_PASSWORD environment variables are set
-  if (process.env.NOVA_USERNAME && process.env.NOVA_PASSWORD) {
-    console.log("NOVA_USERNAME and NOVA_PASSWORD are set. Skipping login.")
-    return null
+  if (!forceAuthLogin) {
+    if (!isLoginRequired(instanceUrl)) {
+      // Check if login is required
+      console.log("Login not required for this instance.")
+      return null
+    }
   }
 
   // Get the appropriate Auth0 configuration based on the instance URL
