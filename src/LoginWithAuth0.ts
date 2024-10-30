@@ -45,7 +45,13 @@ export const loginWithAuth0 = async (
   // Check if login is required
   if (!isLoginRequired(instanceUrl)) {
     console.log("Login not required for this instance.")
-    return null // Return null if login is not required
+    return null
+  }
+
+  // Check if NOVA_USERNAME and NOVA_PASSWORD environment variables are set
+  if (process.env.NOVA_USERNAME && process.env.NOVA_PASSWORD) {
+    console.log("NOVA_USERNAME and NOVA_PASSWORD are set. Skipping login.")
+    return null
   }
 
   // Get the appropriate Auth0 configuration based on the instance URL
