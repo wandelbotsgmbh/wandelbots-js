@@ -91,9 +91,8 @@ jobs:
           # Determine the next version using semantic-release
           NEXT_VERSION=$(npx semantic-release --dry-run | grep "The next release version is" | sed -E 's/.*The next release version is ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
           echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
-      - name: Publish snapshot to npm
+      - name: Update package.json version
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NEXT_VERSION: ${{ env.NEXT_VERSION }}
         run: |
           # Extract the pull request number
@@ -101,6 +100,12 @@ jobs:
           # Extract the branch name
           BRANCH_NAME=$(echo $GITHUB_HEAD_REF | sed 's/\//-/g')
           # Create a snapshot version with branch name and PR number
-          npm version ${NEXT_VERSION}-pr-${BRANCH_NAME}-$PR_NUMBER --no-git-tag-version
+          SNAPSHOT_VERSION="${NEXT_VERSION}-pr-${BRANCH_NAME}-${PR_NUMBER}"
+          # Update the package.json with the new version
+          jq --arg version "$SNAPSHOT_VERSION" '.version = $version' package.json > package.tmp.json && mv package.tmp.json package.json
+      - name: Publish snapshot to npm
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
           # Publish the snapshot version
           npm publish --tag snapshot
