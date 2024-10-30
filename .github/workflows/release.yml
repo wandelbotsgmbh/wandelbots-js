@@ -32,6 +32,10 @@ jobs:
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
       - name: Build
+        env:
+            NOVA_AUTH0_DEV_CLIENT_ID: ${{ secrets.NOVA_AUTH0_DEV_CLIENT_ID }}
+            NOVA_AUTH0_STG_CLIENT_ID: ${{ secrets.NOVA_AUTH0_STG_CLIENT_ID }}
+            NOVA_AUTH0_PROD_CLIENT_ID: ${{ secrets.NOVA_AUTH0_PROD_CLIENT_ID }} 
         run: npm run build
       # semantic-release skips non-configured branches or pull-requests
       - name: Release
