@@ -98,7 +98,10 @@ export class NovaClient {
 
   private getInitialHeaders(config: NovaClientConfig): Record<string, string> {
     const headers: Record<string, string> = {}
-    if (config.instanceUrl === window.location.origin) {
+    if (
+      typeof window !== "undefined" &&
+      config.instanceUrl === window.location.origin
+    ) {
       return headers // No authorization needed if deployed on the same instance
     }
     if (config.accessToken) {
@@ -110,7 +113,10 @@ export class NovaClient {
   }
 
   private async fetchTokenIfNeeded(): Promise<string | null> {
-    if (this.config.instanceUrl === window.location.origin) {
+    if (
+      typeof window !== "undefined" &&
+      this.config.instanceUrl === window.location.origin
+    ) {
       return null // No token needed if deployed on the same instance
     }
     if (this.config.accessToken) {
