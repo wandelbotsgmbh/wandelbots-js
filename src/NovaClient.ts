@@ -1,3 +1,4 @@
+import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
 import type { AxiosRequestConfig } from "axios"
 import axios from "axios"
 import urlJoin from "url-join"
@@ -6,7 +7,6 @@ import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
 import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
 import { JoggerConnection } from "./lib/JoggerConnection"
 import { MotionStreamConnection } from "./lib/MotionStreamConnection"
-import type { ExtendedConfiguration } from "./lib/NovaCellAPIClient" // Import the extended Configuration type
 import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
 import { MockNovaInstance } from "./mock/MockNovaInstance"
 
@@ -37,7 +37,7 @@ export type NovaClientConfig = {
    * Access token for Bearer authentication.
    */
   accessToken?: string
-} & Omit<ExtendedConfiguration, "isJsonMime" | "basePath">
+} & Omit<BaseConfiguration, "isJsonMime" | "basePath">
 
 type NovaClientConfigWithDefaults = NovaClientConfig & { cellId: string }
 
@@ -100,6 +100,7 @@ export class NovaClient {
     const headers: Record<string, string> = {}
     if (
       typeof window !== "undefined" &&
+      !config.instanceUrl &&
       config.instanceUrl === window.location.origin
     ) {
       return headers // No authorization needed if deployed on the same instance
@@ -115,6 +116,7 @@ export class NovaClient {
   private async fetchTokenIfNeeded(): Promise<string | null> {
     if (
       typeof window !== "undefined" &&
+      !this.config.instanceUrl &&
       this.config.instanceUrl === window.location.origin
     ) {
       return null // No token needed if deployed on the same instance

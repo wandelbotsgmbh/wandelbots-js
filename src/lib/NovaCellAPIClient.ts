@@ -22,6 +22,7 @@ import {
 } from "@wandelbots/wandelbots-api-client"
 import type { BaseAPI } from "@wandelbots/wandelbots-api-client/base"
 import type { AxiosInstance } from "axios"
+import axios from "axios"
 
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
   ? (...args: P) => R
@@ -35,11 +36,6 @@ export type WithCellId<T> = {
   [P in keyof T]: UnwrapAxiosResponseReturn<OmitFirstArg<T[P]>>
 }
 
-// Extend the Configuration type to include axiosInstance
-export interface ExtendedConfiguration extends BaseConfiguration {
-  axiosInstance?: AxiosInstance
-}
-
 /**
  * API client providing type-safe access to all the Nova API REST endpoints
  * associated with a specific cell id.
@@ -47,7 +43,10 @@ export interface ExtendedConfiguration extends BaseConfiguration {
 export class NovaCellAPIClient {
   constructor(
     readonly cellId: string,
-    readonly opts: ExtendedConfiguration & { mock?: boolean },
+    readonly opts: BaseConfiguration & {
+      axiosInstance?: AxiosInstance
+      mock?: boolean
+    },
   ) {}
 
   /**
@@ -57,7 +56,7 @@ export class NovaCellAPIClient {
    */
   private withCellId<T extends BaseAPI>(
     ApiConstructor: new (
-      config: ExtendedConfiguration,
+      config: BaseConfiguration,
       basePath: string,
       axios: AxiosInstance,
     ) => T,
@@ -68,10 +67,9 @@ export class NovaCellAPIClient {
         isJsonMime: (mime: string) => {
           return mime === "application/json"
         },
-        axiosInstance: this.opts.axiosInstance!, // Use axiosInstance in the configuration
       },
       this.opts.basePath ?? "",
-      this.opts.axiosInstance!, // Use axiosInstance in the configuration
+      this.opts.axiosInstance ?? axios.create(),
     ) as {
       [key: string | symbol]: any
     }

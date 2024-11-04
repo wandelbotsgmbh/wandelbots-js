@@ -1,9 +1,8 @@
 import { Auth0Client } from "@auth0/auth0-spa-js"
 
-// Constant for the domain suffix
 const DOMAIN_SUFFIX = "wandelbots.io"
 
-// Mapping of stages to Auth0 configurations
+/** Mapping of stages to Auth0 configurations */
 const auth0ConfigMap = {
   dev: {
     domain: `https://auth.portal.dev.${DOMAIN_SUFFIX}`,
@@ -19,7 +18,7 @@ const auth0ConfigMap = {
   },
 }
 
-// Determine which Auth0 configuration to use based on instance URL
+/** Determine which Auth0 configuration to use based on instance URL  */
 const getAuth0Config = (instanceUrl: string) => {
   if (instanceUrl.includes(`dev.${DOMAIN_SUFFIX}`)) return auth0ConfigMap.dev
   if (instanceUrl.includes(`stg.${DOMAIN_SUFFIX}`)) return auth0ConfigMap.stg
@@ -46,16 +45,12 @@ export const loginWithAuth0 = async (
 ): Promise<string | null> => {
   if (!forceAuthLogin) {
     if (!isLoginRequired(instanceUrl)) {
-      // Check if login is required
       console.log("Login not required for this instance.")
       return null
     }
   }
 
-  // Get the appropriate Auth0 configuration based on the instance URL
   const auth0Config = getAuth0Config(instanceUrl)
-
-  // Initialize Auth0Client with the appropriate configuration
   const auth0Client = new Auth0Client({
     domain: auth0Config.domain,
     clientId: auth0Config.clientId ?? "",
