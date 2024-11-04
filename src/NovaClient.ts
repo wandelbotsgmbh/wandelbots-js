@@ -114,6 +114,8 @@ export class NovaClient {
   }
 
   private async fetchTokenIfNeeded(): Promise<string | null> {
+    console.log("Fetching token...")
+    console.log("Config:", this.config)
     if (
       typeof window !== "undefined" &&
       !this.config.instanceUrl &&
