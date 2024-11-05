@@ -96,14 +96,17 @@ export class NovaClient {
     })
   }
 
+  private isDeployedOnInstance(): boolean {
+    return (
+      typeof window !== "undefined" &&
+      window.location.origin.includes("wandelbots.io")
+    )
+  }
+
   private getInitialHeaders(config: NovaClientConfig): Record<string, string> {
     const headers: Record<string, string> = {}
-    if (
-      typeof window !== "undefined" &&
-      !config.instanceUrl &&
-      config.instanceUrl === window.location.origin
-    ) {
-      return headers // No authorization needed if deployed on the same instance
+    if (this.isDeployedOnInstance()) {
+      return headers
     }
     if (config.accessToken) {
       headers.Authorization = `Bearer ${config.accessToken}`
@@ -114,14 +117,8 @@ export class NovaClient {
   }
 
   private async fetchTokenIfNeeded(): Promise<string | null> {
-    console.log("Fetching token...")
-    console.log("Config:", this.config)
-    if (
-      typeof window !== "undefined" &&
-      !this.config.instanceUrl &&
-      this.config.instanceUrl === window.location.origin
-    ) {
-      return null // No token needed if deployed on the same instance
+    if (this.isDeployedOnInstance()) {
+      return null
     }
     if (this.config.accessToken) {
       return this.config.accessToken
