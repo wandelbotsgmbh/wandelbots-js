@@ -2,7 +2,7 @@ import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-
 import type { AxiosRequestConfig } from "axios"
 import axios from "axios"
 import urlJoin from "url-join"
-import { isLoginRequired, loginWithAuth0 } from "./LoginWithAuth0.js" // Import the login function
+import { loginWithAuth0 } from "./LoginWithAuth0.js"
 import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
 import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
 import { JoggerConnection } from "./lib/JoggerConnection"
@@ -96,21 +96,8 @@ export class NovaClient {
     })
   }
 
-  private isDeployedOnInstance(): boolean {
-    return (
-      typeof window !== "undefined" &&
-      window.location.origin.includes("wandelbots.io")
-    )
-  }
-
   private getInitialHeaders(config: NovaClientConfig): Record<string, string> {
     const headers: Record<string, string> = {}
-    if (
-      this.isDeployedOnInstance() &&
-      !isLoginRequired(this.config.instanceUrl)
-    ) {
-      return headers
-    }
     if (config.accessToken) {
       headers.Authorization = `Bearer ${config.accessToken}`
     } else if (config.username && config.password) {
