@@ -35,6 +35,13 @@ export const isLoginRequired = (instanceUrl: string): boolean => {
   return instanceUrl.includes(DOMAIN_SUFFIX)
 }
 
+export const isDeployedOnInstance = (): boolean => {
+  return (
+    typeof window !== "undefined" &&
+    window.location.origin.includes(DOMAIN_SUFFIX)
+  )
+}
+
 /**
  * Initializes Auth0 login process using redirect if necessary and retrieves an access token.
  * Stops the process if login is not required or if NOVA_USERNAME and NOVA_PASSWORD are set.
@@ -44,7 +51,7 @@ export const loginWithAuth0 = async (
   forceAuthLogin: boolean = false,
 ): Promise<string | null> => {
   if (!forceAuthLogin) {
-    if (!isLoginRequired(instanceUrl)) {
+    if (!isLoginRequired(instanceUrl) || isDeployedOnInstance()) {
       console.log("Login not required for this instance.")
       return null
     }
