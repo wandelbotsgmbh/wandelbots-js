@@ -35,7 +35,7 @@ export const isLoginRequired = (instanceUrl: string): boolean => {
   return instanceUrl.includes(DOMAIN_SUFFIX)
 }
 
-export const isDeployedOnInstance = (): boolean => {
+export const isDeployedOnPortalInstance = (): boolean => {
   return (
     typeof window !== "undefined" &&
     window.location.origin.includes(DOMAIN_SUFFIX)
@@ -51,7 +51,7 @@ export const loginWithAuth0 = async (
   forceAuthLogin: boolean = false,
 ): Promise<string | null> => {
   if (!forceAuthLogin) {
-    if (!isLoginRequired(instanceUrl) || isDeployedOnInstance()) {
+    if (!isLoginRequired(instanceUrl) || isDeployedOnPortalInstance()) {
       console.log("Login not required for this instance.")
       return null
     }

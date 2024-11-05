@@ -25,11 +25,13 @@ export type NovaClientConfig = {
 
   /**
    * Username for basic auth to the Nova instance.
+   * @deprecated use accessToken instead
    */
   username?: string
 
   /**
    * Password for basic auth to the Nova instance.
+   * @deprecated use accessToken instead
    */
   password?: string
 
