@@ -52,9 +52,9 @@ export function poseToWandelscriptString(
     pose.orientation?.z ?? 0,
   ]
 
-  const positionValues = position.map((v) => parseFloat(v.toFixed(1)))
+  const positionValues = position.map((v) => v.toFixed(1))
   // Rotation needs more precision since it's in radians
-  const rotationValues = orientation.map((v) => parseFloat(v.toFixed(4)))
+  const rotationValues = orientation.map((v) => v.toFixed(4))
 
   return `(${positionValues.concat(rotationValues).join(", ")})`
 }
