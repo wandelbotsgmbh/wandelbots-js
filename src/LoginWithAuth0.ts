@@ -50,6 +50,12 @@ export const loginWithAuth0 = async (
   instanceUrl: string,
   forceAuthLogin: boolean = false,
 ): Promise<string | null> => {
+  if (typeof window === "undefined") {
+    throw new Error(
+      "Window object is not available. Cannot perform login flow.",
+    )
+  }
+
   if (!forceAuthLogin) {
     if (!isLoginRequired(instanceUrl) || isDeployedOnPortalInstance()) {
       console.log("Login not required for this instance.")
