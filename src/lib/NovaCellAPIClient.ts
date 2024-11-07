@@ -1,5 +1,5 @@
 import {
-  Configuration,
+  Configuration as BaseConfiguration,
   ControllerApi,
   ControllerIOsApi,
   CoordinateSystemsApi,
@@ -21,6 +21,8 @@ import {
   VirtualRobotSetupApi,
 } from "@wandelbots/wandelbots-api-client"
 import type { BaseAPI } from "@wandelbots/wandelbots-api-client/base"
+import type { AxiosInstance } from "axios"
+import axios from "axios"
 
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
   ? (...args: P) => R
@@ -41,7 +43,10 @@ export type WithCellId<T> = {
 export class NovaCellAPIClient {
   constructor(
     readonly cellId: string,
-    readonly opts: Configuration & { mock?: boolean },
+    readonly opts: BaseConfiguration & {
+      axiosInstance?: AxiosInstance
+      mock?: boolean
+    },
   ) {}
 
   /**
@@ -50,9 +55,22 @@ export class NovaCellAPIClient {
    * response data
    */
   private withCellId<T extends BaseAPI>(
-    ApiConstructor: new (config: Configuration) => T,
+    ApiConstructor: new (
+      config: BaseConfiguration,
+      basePath: string,
+      axios: AxiosInstance,
+    ) => T,
   ) {
-    const apiClient = new ApiConstructor(this.opts) as {
+    const apiClient = new ApiConstructor(
+      {
+        ...this.opts,
+        isJsonMime: (mime: string) => {
+          return mime === "application/json"
+        },
+      },
+      this.opts.basePath ?? "",
+      this.opts.axiosInstance ?? axios.create(),
+    ) as {
       [key: string | symbol]: any
     }
 
