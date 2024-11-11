@@ -10,5 +10,5 @@ test("things compile and initialize", async () => {
 
   expect(nova.config.cellId).toBe("cell")
 
-  const result = await nova.api.controller.listControllers()
+  await nova.api.controller.listControllers()
 })
