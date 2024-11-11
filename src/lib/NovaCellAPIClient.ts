@@ -136,6 +136,10 @@ export class NovaCellAPIClient {
 
     return apiClient as WithUnwrappedAxiosResponse<T>
   }
+
+  readonly system = this.withUnwrappedResponsesOnly(SystemApi)
+  readonly cell = this.withUnwrappedResponsesOnly(CellApi)
+
   readonly deviceConfig = this.withCellId(DeviceConfigurationApi)
 
   readonly motionGroup = this.withCellId(MotionGroupApi)
@@ -152,6 +156,8 @@ export class NovaCellAPIClient {
   readonly motion = this.withCellId(MotionApi)
 
   readonly coordinateSystems = this.withCellId(CoordinateSystemsApi)
+
+  readonly application = this.withCellId(ApplicationApi)
 
   readonly motionGroupJogging = this.withCellId(MotionGroupJoggingApi)
 
@@ -170,8 +176,4 @@ export class NovaCellAPIClient {
     StoreCollisionComponentsApi,
   )
   readonly storeCollisionScenes = this.withCellId(StoreCollisionScenesApi)
-
-  readonly cell = this.withUnwrappedResponsesOnly(CellApi)
-  readonly application = this.withUnwrappedResponsesOnly(ApplicationApi)
-  readonly system = this.withUnwrappedResponsesOnly(SystemApi)
 }
