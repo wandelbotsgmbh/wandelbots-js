@@ -1,5 +1,7 @@
+import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
 import {
-  Configuration as BaseConfiguration,
+  ApplicationApi,
+  CellApi,
   ControllerApi,
   ControllerIOsApi,
   CoordinateSystemsApi,
@@ -15,6 +17,10 @@ import {
   MotionGroupKinematicApi,
   ProgramApi,
   ProgramValuesApi,
+  StoreCollisionComponentsApi,
+  StoreCollisionScenesApi,
+  StoreObjectApi,
+  SystemApi,
   VirtualRobotApi,
   VirtualRobotBehaviorApi,
   VirtualRobotModeApi,
@@ -116,4 +122,14 @@ export class NovaCellAPIClient {
   readonly libraryProgram = this.withCellId(LibraryProgramApi)
   readonly libraryRecipeMetadata = this.withCellId(LibraryRecipeMetadataApi)
   readonly libraryRecipe = this.withCellId(LibraryRecipeApi)
+
+  readonly storeObject = this.withCellId(StoreObjectApi)
+  readonly storeCollisionComponents = this.withCellId(
+    StoreCollisionComponentsApi,
+  )
+  readonly storeCollisionScenes = this.withCellId(StoreCollisionScenesApi)
+
+  readonly cell = this.withCellId(CellApi)
+  readonly application = this.withCellId(ApplicationApi)
+  readonly system = this.withCellId(SystemApi)
 }
