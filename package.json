@@ -20,7 +20,8 @@
     "dev:pack": "nodemon -w \".\" -e ts -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
     "build": "tsup src/index.ts --format esm,cjs --clean --sourcemap --env.NOVA_AUTH0_DEV_CLIENT_ID=$NOVA_AUTH0_DEV_CLIENT_ID --env.NOVA_AUTH0_STG_CLIENT_ID=$NOVA_AUTH0_STG_CLIENT_ID --env.NOVA_AUTH0_PROD_CLIENT_ID=$NOVA_AUTH0_PROD_CLIENT_ID && tsc --declaration --emitDeclarationOnly",
-    "test": "npm run build && vitest run"
+    "test": "npm run build && vitest run",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
+    "husky": "^9.1.7",
     "nodemon": "^3.1.4",
     "prettier-eslint": "^16.3.0",
     "semantic-release": "^24.0.0",
