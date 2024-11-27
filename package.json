@@ -21,7 +21,7 @@
     "tsc": "tsc --pretty --noEmit",
     "build": "tsup src/index.ts --format esm,cjs --clean --sourcemap --env.NOVA_AUTH0_DEV_CLIENT_ID=$NOVA_AUTH0_DEV_CLIENT_ID --env.NOVA_AUTH0_STG_CLIENT_ID=$NOVA_AUTH0_STG_CLIENT_ID --env.NOVA_AUTH0_PROD_CLIENT_ID=$NOVA_AUTH0_PROD_CLIENT_ID && tsc --declaration --emitDeclarationOnly",
     "test": "npm run build && vitest run",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "repository": {
     "type": "git",
