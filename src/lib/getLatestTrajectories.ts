@@ -5,6 +5,8 @@ let lastMotionIds: Set<string> = new Set()
 
 export async function getLatestTrajectories(
   apiClient: NovaCellAPIClient,
+  sampleTime: number = 50,
+  responsesCoordinateSystem?: string,
 ): Promise<GetTrajectoryResponse[]> {
   const newTrajectories: GetTrajectoryResponse[] = []
 
@@ -19,7 +21,8 @@ export async function getLatestTrajectories(
     for (const motionId of newMotionIds) {
       const trajectory = await apiClient.motion.getMotionTrajectory(
         motionId,
-        50,
+        sampleTime,
+        responsesCoordinateSystem,
       )
       newTrajectories.push(trajectory)
     }
