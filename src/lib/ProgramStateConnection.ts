@@ -53,23 +53,23 @@ export class ProgramStateConnection {
 
     this.programStateSocket = nova.openReconnectingWebsocket(`/programs/state`)
 
-    this.log("Program state connection established")
     this.programStateSocket.addEventListener("message", (ev) => {
-      this.log(ev.data)
       const msg = tryParseJson(ev.data)
 
       if (!msg) {
         console.error("Failed to parse program state message", ev.data)
         return
       }
-      this.handleProgramStateMessage(msg)
+      if (msg.type === "update") {
+        this.handleProgramStateMessage(msg)
+      }
     })
   }
 
   /** Handle a program state update from the backend */
   async handleProgramStateMessage(msg: ProgramStateMessage) {
     const { runner } = msg
-    this.log(runner.id)
+
     // Ignoring other programs for now
     // TODO - show if execution state is busy from another source
     if (runner.id !== this.currentlyExecutingProgramRunnerId) return
