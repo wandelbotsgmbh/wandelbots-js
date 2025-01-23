@@ -128,7 +128,7 @@ export class NovaClient {
     const url = new URL(
       urlJoin(
         this.config.instanceUrl,
-        `/api/v1/cells/${this.config.cellId}`,
+        `/api/v2/cells/${this.config.cellId}`,
         path,
       ),
     )
