@@ -41,7 +41,7 @@
     "semantic-release": "^24.2.1",
     "tsup": "^8.3.6",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.2",
+    "vitest": "^3.0.4",
     "ws": "^8.18.0"
   },
   "dependencies": {
