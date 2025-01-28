@@ -38,7 +38,7 @@
     "husky": "^9.1.7",
     "nodemon": "^3.1.4",
     "prettier-eslint": "^16.3.0",
-    "semantic-release": "^24.0.0",
+    "semantic-release": "^24.2.1",
     "tsup": "^8.1.0",
     "typescript": "^5.5.3",
     "vitest": "^2.0.2",
@@ -50,7 +50,7 @@
     "@wandelbots/wandelbots-api-client": "^24.8.1",
     "axios": "^1.7.2",
     "mobx": "^6.12.4",
-    "path-to-regexp": "^7.1.0",
+    "path-to-regexp": "^8.0.0",
     "reconnecting-websocket": "^4.4.0",
     "three": "^0.167.1",
     "url-join": "^5.0.0"
