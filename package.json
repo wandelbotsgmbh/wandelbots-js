@@ -50,7 +50,7 @@
     "@wandelbots/wandelbots-api-client": "^24.8.1",
     "axios": "^1.7.2",
     "mobx": "^6.12.4",
-    "path-to-regexp": "^7.1.0",
+    "path-to-regexp": "^8.0.0",
     "reconnecting-websocket": "^4.4.0",
     "three": "^0.167.1",
     "url-join": "^5.0.0"
