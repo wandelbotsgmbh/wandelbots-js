@@ -21,9 +21,8 @@ export type JoggerConnectionOpts = {
 
 export class JoggerConnection {
   // Currently a separate websocket is needed for each mode, pester API people
-  // to merge these for simplicity
-  cartesianWebsocket: AutoReconnectingWebsocket | null = null
-  jointWebsocket: AutoReconnectingWebsocket | null = null
+  // to merge these for simplicity - pestering paid off: merged (next step: also merge incremental jogging)
+  continuousJoggingWebsocket: AutoReconnectingWebsocket | null = null
   cartesianJoggingOpts: {
     tcpId?: string
     coordSystemId?: string
@@ -56,14 +55,14 @@ export class JoggerConnection {
     return this.motionStream.joints.length
   }
 
+  // TODO: Is this used?
   get activeJoggingMode() {
-    if (this.cartesianWebsocket) return "cartesian"
-    if (this.jointWebsocket) return "joint"
+    if (this.continuousJoggingWebsocket) return "continuous"
     return "increment"
   }
 
   get activeWebsocket() {
-    return this.cartesianWebsocket || this.jointWebsocket
+    return this.continuousJoggingWebsocket
   }
 
   async stop() {
@@ -71,8 +70,8 @@ export class JoggerConnection {
     // Because this results in the websocket closing and we
     // would like to keep it open for now.
 
-    if (this.cartesianWebsocket) {
-      this.cartesianWebsocket.sendJson({
+    if (this.continuousJoggingWebsocket) {
+      this.continuousJoggingWebsocket.sendJson({
         motion_group: this.motionGroupId,
         position_direction: { x: 0, y: 0, z: 0 },
         rotation_direction: { x: 0, y: 0, z: 0 },
@@ -82,27 +81,16 @@ export class JoggerConnection {
         coordinate_system: this.cartesianJoggingOpts.coordSystemId,
       })
     }
-
-    if (this.jointWebsocket) {
-      this.jointWebsocket.sendJson({
-        motion_group: this.motionGroupId,
-        joint_velocities: new Array(this.numJoints).fill(0),
-      })
-    }
   }
 
   dispose() {
-    if (this.cartesianWebsocket) {
-      this.cartesianWebsocket.dispose()
-    }
-
-    if (this.jointWebsocket) {
-      this.jointWebsocket.dispose()
+    if (this.continuousJoggingWebsocket) {
+      this.continuousJoggingWebsocket.dispose()
     }
   }
 
   setJoggingMode(
-    mode: "cartesian" | "joint" | "increment",
+    mode: "continuous" | "increment",
     cartesianJoggingOpts?: {
       tcpId?: string
       coordSystemId?: string
@@ -112,31 +100,35 @@ export class JoggerConnection {
     if (cartesianJoggingOpts) {
       // Websocket needs to be reopened to change options
       if (!isEqual(this.cartesianJoggingOpts, cartesianJoggingOpts)) {
-        if (this.cartesianWebsocket) {
-          this.cartesianWebsocket.dispose()
-          this.cartesianWebsocket = null
+        if (this.continuousJoggingWebsocket) {
+          this.continuousJoggingWebsocket.dispose()
+          this.continuousJoggingWebsocket = null
         }
       }
 
       this.cartesianJoggingOpts = cartesianJoggingOpts
     }
 
-    if (mode !== "cartesian" && this.cartesianWebsocket) {
-      this.cartesianWebsocket.dispose()
-      this.cartesianWebsocket = null
+    if (mode == "increment" && this.continuousJoggingWebsocket) {
+      this.continuousJoggingWebsocket.dispose()
+      this.continuousJoggingWebsocket = null
     }
 
-    if (mode !== "joint" && this.jointWebsocket) {
-      this.jointWebsocket.dispose()
-      this.jointWebsocket = null
-    }
-
-    if (mode === "cartesian" && !this.cartesianWebsocket) {
-      this.cartesianWebsocket = this.nova.openReconnectingWebsocket(
-        `/motion-groups/move-tcp`,
+    if (mode === "continuous" && !this.continuousJoggingWebsocket) {
+      this.continuousJoggingWebsocket = this.nova.openReconnectingWebsocket(
+        `/execution/jogging`,
       )
 
-      this.cartesianWebsocket.addEventListener(
+    this.continuousJoggingWebsocket.sendJson({
+      message_type: "InitializeJoggingRequest",
+      motion_group: this.motionGroupId,
+      tcp: this.cartesianJoggingOpts.tcpId,
+      response_rate: 1000,
+      response_coordinate_system: this.cartesianJoggingOpts.coordSystemId
+    })
+
+
+      this.continuousJoggingWebsocket.addEventListener(
         "message",
         (ev: MessageEvent) => {
           const data = tryParseJson(ev.data)
@@ -149,23 +141,6 @@ export class JoggerConnection {
           }
         },
       )
-    }
-
-    if (mode === "joint" && !this.jointWebsocket) {
-      this.jointWebsocket = this.nova.openReconnectingWebsocket(
-        `/motion-groups/move-joint`,
-      )
-
-      this.jointWebsocket.addEventListener("message", (ev: MessageEvent) => {
-        const data = tryParseJson(ev.data)
-        if (data && "error" in data) {
-          if (this.opts.onError) {
-            this.opts.onError(ev.data)
-          } else {
-            throw new Error(ev.data)
-          }
-        }
-      })
     }
   }
 
@@ -184,9 +159,9 @@ export class JoggerConnection {
     /** Speed of the rotation in radians per second */
     velocityRadsPerSec: number
   }) {
-    if (!this.jointWebsocket) {
+    if (!this.continuousJoggingWebsocket) {
       throw new Error(
-        "Joint jogging websocket not connected; call setJoggingMode first",
+        "Jogging websocket not connected; call setJoggingMode first",
       )
     }
 
@@ -195,9 +170,9 @@ export class JoggerConnection {
     jointVelocities[joint] =
       direction === "-" ? -velocityRadsPerSec : velocityRadsPerSec
 
-    this.jointWebsocket.sendJson({
-      motion_group: this.motionGroupId,
-      joint_velocities: jointVelocities,
+    this.continuousJoggingWebsocket.sendJson({
+      message_type: "JointVelocityRequest",
+      velocity: jointVelocities
     })
   }
 
@@ -213,24 +188,20 @@ export class JoggerConnection {
     direction: "-" | "+"
     velocityMmPerSec: number
   }) {
-    if (!this.cartesianWebsocket) {
+    if (!this.continuousJoggingWebsocket) {
       throw new Error(
-        "Cartesian jogging websocket not connected; call setJoggingMode first",
+        "Jogging websocket not connected; call setJoggingMode first",
       )
     }
 
     const zeroVector = { x: 0, y: 0, z: 0 }
     const joggingVector = Object.assign({}, zeroVector)
-    joggingVector[axis] = direction === "-" ? -1 : 1
+    joggingVector[axis] = direction === "-" ? -velocityMmPerSec : velocityMmPerSec
 
-    this.cartesianWebsocket.sendJson({
-      motion_group: this.motionGroupId,
-      position_direction: joggingVector,
-      rotation_direction: zeroVector,
-      position_velocity: velocityMmPerSec,
-      rotation_velocity: 0,
-      tcp: this.cartesianJoggingOpts.tcpId,
-      coordinate_system: this.cartesianJoggingOpts.coordSystemId,
+    this.continuousJoggingWebsocket.sendJson({
+      message_type: "TcpVelocityRequest",
+      translation: joggingVector,
+      rotation: zeroVector
     })
   }
 
@@ -246,24 +217,20 @@ export class JoggerConnection {
     direction: "-" | "+"
     velocityRadsPerSec: number
   }) {
-    if (!this.cartesianWebsocket) {
+    if (!this.continuousJoggingWebsocket) {
       throw new Error(
-        "Cartesian jogging websocket not connected; call setJoggingMode first",
+        "Jogging websocket not connected; call setJoggingMode first",
       )
     }
 
     const zeroVector = { x: 0, y: 0, z: 0 }
     const joggingVector = Object.assign({}, zeroVector)
-    joggingVector[axis] = direction === "-" ? -1 : 1
+    joggingVector[axis] = direction === "-" ? -velocityRadsPerSec : velocityRadsPerSec
 
-    this.cartesianWebsocket.sendJson({
-      motion_group: this.motionGroupId,
-      position_direction: zeroVector,
-      rotation_direction: joggingVector,
-      position_velocity: 0,
-      rotation_velocity: velocityRadsPerSec,
-      tcp: this.cartesianJoggingOpts.tcpId,
-      coordinate_system: this.cartesianJoggingOpts.coordSystemId,
+    this.continuousJoggingWebsocket.sendJson({
+      message_type: "TcpVelocityRequest",
+      translation: zeroVector,
+      rotation: joggingVector
     })
   }
 
