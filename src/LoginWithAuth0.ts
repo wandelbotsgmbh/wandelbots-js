@@ -69,7 +69,7 @@ export const loginWithAuth0 = async (
     clientId: auth0Config.clientId ?? "",
     useRefreshTokens: false,
     authorizationParams: {
-      audience: "nova-instance-rest-api",
+      audience: "nova-api",
       redirect_uri: window.location.origin,
     },
   })
