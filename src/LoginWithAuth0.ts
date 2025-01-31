@@ -1,5 +1,3 @@
-import { Auth0Client } from "@auth0/auth0-spa-js"
-
 const DOMAIN_SUFFIX = "wandelbots.io"
 
 /** Mapping of stages to Auth0 configurations */
@@ -34,9 +32,12 @@ const getAuth0Config = (instanceUrl: string) => {
 export const loginWithAuth0 = async (instanceUrl: string): Promise<string> => {
   if (typeof window === "undefined") {
     throw new Error(
-      "Window object is not available. Cannot perform login flow.",
+      `Access token must be set to use NovaClient when not in a browser environment.`,
     )
   }
+
+  // Only import auth stuff as needed
+  const { Auth0Client } = await import("@auth0/auth0-spa-js")
 
   const auth0Config = getAuth0Config(instanceUrl)
   const auth0Client = new Auth0Client({

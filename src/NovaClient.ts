@@ -62,7 +62,7 @@ export class NovaClient {
     }
     this.accessToken =
       config.accessToken ||
-      availableStorage.getString("WANDELBOTS_JS_ACCESS_TOKEN") ||
+      availableStorage.getString("wbjs.access_token") ||
       null
 
     if (this.config.instanceUrl === "https://mock.example.com") {
@@ -136,7 +136,7 @@ export class NovaClient {
     try {
       this.accessToken = await this.accessTokenPromise
       // Cache access token so we don't need to log in every refresh
-      availableStorage.setString("WANDELBOTS_JS_ACCESS_TOKEN", this.accessToken)
+      availableStorage.setString("wbjs.access_token", this.accessToken)
     } finally {
       this.accessTokenPromise = null
     }
