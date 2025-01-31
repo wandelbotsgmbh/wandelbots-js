@@ -29,38 +29,13 @@ const getAuth0Config = (instanceUrl: string) => {
 }
 
 /**
- * Checks if login is required based on the instance URL.
- */
-export const isLoginRequired = (instanceUrl: string): boolean => {
-  return instanceUrl.includes(DOMAIN_SUFFIX)
-}
-
-export const isDeployedOnPortalInstance = (): boolean => {
-  return (
-    typeof window !== "undefined" &&
-    window.location.origin.includes(DOMAIN_SUFFIX)
-  )
-}
-
-/**
  * Initializes Auth0 login process using redirect if necessary and retrieves an access token.
- * Stops the process if login is not required or if NOVA_USERNAME and NOVA_PASSWORD are set.
  */
-export const loginWithAuth0 = async (
-  instanceUrl: string,
-  forceAuthLogin: boolean = false,
-): Promise<string | null> => {
+export const loginWithAuth0 = async (instanceUrl: string): Promise<string> => {
   if (typeof window === "undefined") {
     throw new Error(
       "Window object is not available. Cannot perform login flow.",
     )
-  }
-
-  if (!forceAuthLogin) {
-    if (!isLoginRequired(instanceUrl) || isDeployedOnPortalInstance()) {
-      console.log("Login not required for this instance.")
-      return null
-    }
   }
 
   const auth0Config = getAuth0Config(instanceUrl)
