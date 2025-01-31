@@ -8,6 +8,7 @@ import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
 import { JoggerConnection } from "./lib/JoggerConnection"
 import { MotionStreamConnection } from "./lib/MotionStreamConnection"
 import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
+import { availableStorage } from "./lib/availableStorage.js"
 import { MockNovaInstance } from "./mock/MockNovaInstance"
 
 export type NovaClientConfig = {
@@ -61,7 +62,7 @@ export class NovaClient {
     }
     this.accessToken =
       config.accessToken ||
-      localStorage.getItem("WANDELBOTS_JS_ACCESS_TOKEN") ||
+      availableStorage.getString("WANDELBOTS_JS_ACCESS_TOKEN") ||
       null
 
     if (this.config.instanceUrl === "https://mock.example.com") {
@@ -135,7 +136,7 @@ export class NovaClient {
     try {
       this.accessToken = await this.accessTokenPromise
       // Cache access token so we don't need to log in every refresh
-      localStorage.setItem("WANDELBOTS_JS_ACCESS_TOKEN", this.accessToken)
+      availableStorage.setString("WANDELBOTS_JS_ACCESS_TOKEN", this.accessToken)
     } finally {
       this.accessTokenPromise = null
     }

@@ -1,5 +1,6 @@
 export * from "@wandelbots/wandelbots-api-client"
 export * from "./lib/AutoReconnectingWebsocket"
+export * from "./lib/availableStorage"
 export * from "./lib/ConnectedMotionGroup"
 export * from "./lib/converters"
 export * from "./lib/errorHandling"
