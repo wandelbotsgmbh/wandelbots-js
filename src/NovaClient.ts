@@ -170,8 +170,6 @@ export class NovaClient {
 
   /**
    * Retrieve an AutoReconnectingWebsocket to the given path on the Nova instance.
-   * If this client already has an open websocket to the path, the websocket will be
-   * reused instead of opening a duplicate one.
    * If you explicitly want to reconnect an existing websocket, call `reconnect`
    * on the returned object.
    */
