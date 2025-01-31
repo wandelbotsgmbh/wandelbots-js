@@ -50,7 +50,8 @@ export class NovaClient {
   readonly api: NovaCellAPIClient
   readonly config: NovaClientConfigWithDefaults
   readonly mock?: MockNovaInstance
-  accessToken?: string
+  accessTokenPromise: Promise<string> | null = null
+  accessToken: string | null = null
 
   constructor(config: NovaClientConfig) {
     const cellId = config.cellId ?? "cell"
@@ -58,7 +59,7 @@ export class NovaClient {
       cellId,
       ...config,
     }
-    this.accessToken = config.accessToken
+    this.accessToken = config.accessToken ?? null
 
     if (this.config.instanceUrl === "https://mock.example.com") {
       this.mock = new MockNovaInstance()
@@ -121,8 +122,18 @@ export class NovaClient {
     })
   }
 
-  private async fetchAccessToken(): Promise<string | null> {
-    this.accessToken = await loginWithAuth0(this.config.instanceUrl)
+  private async fetchAccessToken(): Promise<string> {
+    if (this.accessTokenPromise) {
+      return this.accessTokenPromise
+    }
+
+    this.accessTokenPromise = loginWithAuth0(this.config.instanceUrl)
+    try {
+      this.accessToken = await this.accessTokenPromise
+    } finally {
+      this.accessTokenPromise = null
+    }
+
     return this.accessToken
   }
 
