@@ -59,7 +59,10 @@ export class NovaClient {
       cellId,
       ...config,
     }
-    this.accessToken = config.accessToken ?? null
+    this.accessToken =
+      config.accessToken ||
+      localStorage.getItem("WANDELBOTS_JS_ACCESS_TOKEN") ||
+      null
 
     if (this.config.instanceUrl === "https://mock.example.com") {
       this.mock = new MockNovaInstance()
@@ -85,10 +88,11 @@ export class NovaClient {
       (r) => r,
       async (error) => {
         if (isAxiosError(error) && error.response?.status === 401) {
+          // If we hit a 401, attempt to login the user and retry with
+          // a new access token
           try {
-            const token = await this.fetchAccessToken()
+            const token = await this.renewAccessToken()
 
-            // Retry request with the new token
             if (error.config) {
               error.config.headers.Authorization = `Bearer ${token}`
               return axiosInstance.request(error.config)
@@ -122,7 +126,7 @@ export class NovaClient {
     })
   }
 
-  private async fetchAccessToken(): Promise<string> {
+  async renewAccessToken(): Promise<string> {
     if (this.accessTokenPromise) {
       return this.accessTokenPromise
     }
@@ -130,6 +134,8 @@ export class NovaClient {
     this.accessTokenPromise = loginWithAuth0(this.config.instanceUrl)
     try {
       this.accessToken = await this.accessTokenPromise
+      // Cache access token so we don't need to log in every refresh
+      localStorage.setItem("WANDELBOTS_JS_ACCESS_TOKEN", this.accessToken)
     } finally {
       this.accessTokenPromise = null
     }
