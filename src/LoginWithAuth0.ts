@@ -42,7 +42,7 @@ export const loginWithAuth0 = async (
 
   const auth0Config = getAuth0Config(instanceUrl)
 
-  if (instanceUrl === window.location.origin) {
+  if (new URL(instanceUrl).origin === window.location.origin) {
     // When deployed on the instance itself, our auth is handled by cookies
     // and no access token is needed-- just need to redirect to login and back
 
