@@ -44,17 +44,9 @@ export const loginWithAuth0 = async (
 
   if (new URL(instanceUrl).origin === window.location.origin) {
     // When deployed on the instance itself, our auth is handled by cookies
-    // and no access token is needed-- just need to redirect to login and back
-
-    const instanceAuthUrl = auth0Config.domain.replace(
-      "auth.portal",
-      "auth.instance",
-    )
-
-    window.location.replace(
-      `${instanceAuthUrl}/oauth2/start?rd=${encodeURIComponent(window.location.href)}`,
-    )
-    return null
+    // and no access token is needed-- just need to reload the page and it'll
+    // login again / set cookie as needed
+    window.location.reload()
   }
 
   // If we're on localhost or another domain, we need to do the full oauth flow
