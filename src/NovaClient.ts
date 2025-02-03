@@ -1,6 +1,6 @@
 import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
 import type { AxiosRequestConfig } from "axios"
-import axios from "axios"
+import axios, { isAxiosError } from "axios"
 import urlJoin from "url-join"
 import { loginWithAuth0 } from "./LoginWithAuth0.js"
 import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
@@ -8,6 +8,7 @@ import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
 import { JoggerConnection } from "./lib/JoggerConnection"
 import { MotionStreamConnection } from "./lib/MotionStreamConnection"
 import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
+import { availableStorage } from "./lib/availableStorage.js"
 import { MockNovaInstance } from "./mock/MockNovaInstance"
 
 export type NovaClientConfig = {
@@ -50,6 +51,8 @@ export class NovaClient {
   readonly api: NovaCellAPIClient
   readonly config: NovaClientConfigWithDefaults
   readonly mock?: MockNovaInstance
+  authPromise: Promise<string | null> | null = null
+  accessToken: string | null = null
 
   constructor(config: NovaClientConfig) {
     const cellId = config.cellId ?? "cell"
@@ -57,6 +60,10 @@ export class NovaClient {
       cellId,
       ...config,
     }
+    this.accessToken =
+      config.accessToken ||
+      availableStorage.getString("wbjs.access_token") ||
+      null
 
     if (this.config.instanceUrl === "https://mock.example.com") {
       this.mock = new MockNovaInstance()
@@ -65,18 +72,44 @@ export class NovaClient {
     // Set up Axios instance with interceptor for token fetching
     const axiosInstance = axios.create({
       baseURL: urlJoin(this.config.instanceUrl, "/api/v1"),
-      headers: this.getInitialHeaders(config),
     })
 
     axiosInstance.interceptors.request.use(async (request) => {
       if (!request.headers.Authorization) {
-        const token = await this.fetchTokenIfNeeded()
-        if (token) {
-          request.headers.Authorization = `Bearer ${token}`
+        if (this.accessToken) {
+          request.headers.Authorization = `Bearer ${this.accessToken}`
+        } else if (this.config.username && this.config.password) {
+          request.headers.Authorization = `Basic ${btoa(config.username + ":" + config.password)}`
         }
       }
       return request
     })
+
+    axiosInstance.interceptors.response.use(
+      (r) => r,
+      async (error) => {
+        if (isAxiosError(error) && error.response?.status === 401) {
+          // If we hit a 401, attempt to login the user and retry with
+          // a new access token
+          try {
+            await this.renewAuthentication()
+
+            if (error.config) {
+              if (this.accessToken) {
+                error.config.headers.Authorization = `Bearer ${this.accessToken}`
+              } else {
+                delete error.config.headers.Authorization
+              }
+              return axiosInstance.request(error.config)
+            }
+          } catch (err) {
+            return Promise.reject(err)
+          }
+        }
+
+        return Promise.reject(error)
+      },
+    )
 
     this.api = new NovaCellAPIClient(cellId, {
       ...config,
@@ -98,30 +131,24 @@ export class NovaClient {
     })
   }
 
-  private getInitialHeaders(config: NovaClientConfig): Record<string, string> {
-    const headers: Record<string, string> = {}
-    if (config.accessToken) {
-      headers.Authorization = `Bearer ${config.accessToken}`
-    } else if (config.username && config.password) {
-      headers.Authorization = `Basic ${btoa(config.username + ":" + config.password)}`
+  async renewAuthentication(): Promise<void> {
+    if (this.authPromise) {
+      // Don't double up
+      return
     }
-    return headers
-  }
 
-  private async fetchTokenIfNeeded(): Promise<string | null> {
-    if (this.config.accessToken) {
-      return this.config.accessToken
-    }
+    this.authPromise = loginWithAuth0(this.config.instanceUrl)
     try {
-      const token = await loginWithAuth0(this.config.instanceUrl)
-      if (token) {
-        this.config.accessToken = token
-        return token
+      this.accessToken = await this.authPromise
+      if (this.accessToken) {
+        // Cache access token so we don't need to log in every refresh
+        availableStorage.setString("wbjs.access_token", this.accessToken)
+      } else {
+        availableStorage.delete("wbjs.access_token")
       }
-    } catch (error) {
-      console.error("Failed to fetch token:", error)
+    } finally {
+      this.authPromise = null
     }
-    return null
   }
 
   makeWebsocketURL(path: string): string {
@@ -138,8 +165,8 @@ export class NovaClient {
     // If provided, add basic auth credentials to the URL
     // NOTE - basic auth is deprecated on websockets and doesn't work in Safari
     // use tokens instead
-    if (this.config.accessToken) {
-      url.searchParams.append("token", this.config.accessToken)
+    if (this.accessToken) {
+      url.searchParams.append("token", this.accessToken)
     } else if (this.config.username && this.config.password) {
       url.username = this.config.username
       url.password = this.config.password
@@ -150,8 +177,6 @@ export class NovaClient {
 
   /**
    * Retrieve an AutoReconnectingWebsocket to the given path on the Nova instance.
-   * If this client already has an open websocket to the path, the websocket will be
-   * reused instead of opening a duplicate one.
    * If you explicitly want to reconnect an existing websocket, call `reconnect`
    * on the returned object.
    */

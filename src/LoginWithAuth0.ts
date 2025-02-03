@@ -1,5 +1,3 @@
-import { Auth0Client } from "@auth0/auth0-spa-js"
-
 const DOMAIN_SUFFIX = "wandelbots.io"
 
 /** Mapping of stages to Auth0 configurations */
@@ -29,41 +27,36 @@ const getAuth0Config = (instanceUrl: string) => {
 }
 
 /**
- * Checks if login is required based on the instance URL.
- */
-export const isLoginRequired = (instanceUrl: string): boolean => {
-  return instanceUrl.includes(DOMAIN_SUFFIX)
-}
-
-export const isDeployedOnPortalInstance = (): boolean => {
-  return (
-    typeof window !== "undefined" &&
-    window.location.origin.includes(DOMAIN_SUFFIX)
-  )
-}
-
-/**
  * Initializes Auth0 login process using redirect if necessary and retrieves an access token.
- * Stops the process if login is not required or if NOVA_USERNAME and NOVA_PASSWORD are set.
+ * Returns null when an access token should not be needed to authenticate (i.e. cookie auth
+ * when deployed on the instance domain)
  */
 export const loginWithAuth0 = async (
   instanceUrl: string,
-  forceAuthLogin: boolean = false,
 ): Promise<string | null> => {
   if (typeof window === "undefined") {
     throw new Error(
-      "Window object is not available. Cannot perform login flow.",
+      `Access token must be set to use NovaClient when not in a browser environment.`,
     )
   }
 
-  if (!forceAuthLogin) {
-    if (!isLoginRequired(instanceUrl) || isDeployedOnPortalInstance()) {
-      console.log("Login not required for this instance.")
-      return null
-    }
+  const auth0Config = getAuth0Config(instanceUrl)
+
+  if (new URL(instanceUrl).origin === window.location.origin) {
+    // When deployed on the instance itself, our auth is handled by cookies
+    // and no access token is needed-- just need to reload the page and it'll
+    // login again / set cookie as needed
+    window.location.reload()
+    throw new Error(
+      "Failed to reload page to get auth details, please refresh manually",
+    )
   }
 
-  const auth0Config = getAuth0Config(instanceUrl)
+  // If we're on localhost or another domain, we need to do the full oauth flow
+  // Note this will ONLY work for origins which are whitelisted as a redirect_uri
+  // in the auth0 config, currently
+  const { Auth0Client } = await import("@auth0/auth0-spa-js")
+
   const auth0Client = new Auth0Client({
     domain: auth0Config.domain,
     clientId: auth0Config.clientId ?? "",

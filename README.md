@@ -7,6 +7,7 @@ This library provides convenient access to the Wandelbots API from frontend Java
 ```bash
 npm install @wandelbots/wandelbots-js
 ```
+
 If you develop an react application we also provide a set of [react components](https://github.com/wandelbotsgmbh/wandelbots-js-react-components) which you can use together with this library.
 
 ## Table of contents
@@ -35,9 +36,8 @@ const nova = new NovaClient({
   instanceUrl: "https://example.instance.wandelbots.io",
   cellId: "cell",
 
-  // Auth details come from the developer portal when you create an instance
-  username: "wb",
-  password: "SOME_PASSWORD",
+  // Access token is given in the developer portal UI when you create an instance
+  accessToken: "...",
 })
 ```
 
@@ -82,17 +82,18 @@ The library provides an easy to use way to access properties of a motion group.
 activeRobot = await this.nova.connectMotionGroup(`some-motion-group-id`)
 ```
 
-This connected motion group opens a websocket and listens to changes of the current joints and the TCP pose. You can read out those values by using the `rapidlyChangingMotionState` of the object. Along other properties it also provides the current `safetySetup` and `tcps`. 
+This connected motion group opens a websocket and listens to changes of the current joints and the TCP pose. You can read out those values by using the `rapidlyChangingMotionState` of the object. Along other properties it also provides the current `safetySetup` and `tcps`.
 
 ```ts
-const newJoints = activeRobot.rapidlyChangingMotionState.state.joint_position.joints
+const newJoints =
+  activeRobot.rapidlyChangingMotionState.state.joint_position.joints
 ```
 
-To render a visual representation, you can use the `robot` component of the [react components](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/3d-view-robot--docs). 
+To render a visual representation, you can use the `robot` component of the [react components](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/3d-view-robot--docs).
 
 ## Execute Wandelscript
 
-The `ProgramStateConnection` provides an object which allows to execute and stop a given Wandelscript. 
+The `ProgramStateConnection` provides an object which allows to execute and stop a given Wandelscript.
 
 ```ts
 import script from "./example.ws"
