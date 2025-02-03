@@ -52,7 +52,7 @@ export const loginWithAuth0 = async (
     )
 
     window.location.replace(
-      `${instanceAuthUrl}/oauth2/start?rd=${window.location.href}`,
+      `${instanceAuthUrl}/oauth2/start?rd=${encodeURIComponent(window.location.href)}`,
     )
     return null
   }
