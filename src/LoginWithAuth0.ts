@@ -47,6 +47,9 @@ export const loginWithAuth0 = async (
     // and no access token is needed-- just need to reload the page and it'll
     // login again / set cookie as needed
     window.location.reload()
+    throw new Error(
+      "Failed to reload page to get auth details, please refresh manually",
+    )
   }
 
   // If we're on localhost or another domain, we need to do the full oauth flow
