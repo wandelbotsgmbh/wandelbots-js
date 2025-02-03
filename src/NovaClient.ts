@@ -51,7 +51,7 @@ export class NovaClient {
   readonly api: NovaCellAPIClient
   readonly config: NovaClientConfigWithDefaults
   readonly mock?: MockNovaInstance
-  accessTokenPromise: Promise<string> | null = null
+  authPromise: Promise<string | null> | null = null
   accessToken: string | null = null
 
   constructor(config: NovaClientConfig) {
@@ -92,10 +92,14 @@ export class NovaClient {
           // If we hit a 401, attempt to login the user and retry with
           // a new access token
           try {
-            const token = await this.renewAccessToken()
+            await this.renewAuthentication()
 
             if (error.config) {
-              error.config.headers.Authorization = `Bearer ${token}`
+              if (this.accessToken) {
+                error.config.headers.Authorization = `Bearer ${this.accessToken}`
+              } else {
+                delete error.config.headers.Authorization
+              }
               return axiosInstance.request(error.config)
             }
           } catch (err) {
@@ -127,21 +131,24 @@ export class NovaClient {
     })
   }
 
-  async renewAccessToken(): Promise<string> {
-    if (this.accessTokenPromise) {
-      return this.accessTokenPromise
+  async renewAuthentication(): Promise<void> {
+    if (this.authPromise) {
+      // Don't double up
+      return
     }
 
-    this.accessTokenPromise = loginWithAuth0(this.config.instanceUrl)
+    this.authPromise = loginWithAuth0(this.config.instanceUrl)
     try {
-      this.accessToken = await this.accessTokenPromise
-      // Cache access token so we don't need to log in every refresh
-      availableStorage.setString("wbjs.access_token", this.accessToken)
+      this.accessToken = await this.authPromise
+      if (this.accessToken) {
+        // Cache access token so we don't need to log in every refresh
+        availableStorage.setString("wbjs.access_token", this.accessToken)
+      } else {
+        availableStorage.delete("wbjs.access_token")
+      }
     } finally {
-      this.accessTokenPromise = null
+      this.authPromise = null
     }
-
-    return this.accessToken
   }
 
   makeWebsocketURL(path: string): string {

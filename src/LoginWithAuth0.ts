@@ -28,18 +28,40 @@ const getAuth0Config = (instanceUrl: string) => {
 
 /**
  * Initializes Auth0 login process using redirect if necessary and retrieves an access token.
+ * Returns null when an access token should not be needed to authenticate (i.e. cookie auth
+ * when deployed on the instance domain)
  */
-export const loginWithAuth0 = async (instanceUrl: string): Promise<string> => {
+export const loginWithAuth0 = async (
+  instanceUrl: string,
+): Promise<string | null> => {
   if (typeof window === "undefined") {
     throw new Error(
       `Access token must be set to use NovaClient when not in a browser environment.`,
     )
   }
 
-  // Only import auth stuff as needed
+  const auth0Config = getAuth0Config(instanceUrl)
+
+  if (instanceUrl === window.location.origin) {
+    // When deployed on the instance itself, our auth is handled by cookies
+    // and no access token is needed-- just need to redirect to login and back
+
+    const instanceAuthUrl = auth0Config.domain.replace(
+      "auth.portal",
+      "auth.instance",
+    )
+
+    window.location.replace(
+      `${instanceAuthUrl}/oauth2/start?rd=${window.location.href}`,
+    )
+    return null
+  }
+
+  // If we're on localhost or another domain, we need to do the full oauth flow
+  // Note this will ONLY work for origins which are whitelisted as a redirect_uri
+  // in the auth0 config, currently
   const { Auth0Client } = await import("@auth0/auth0-spa-js")
 
-  const auth0Config = getAuth0Config(instanceUrl)
   const auth0Client = new Auth0Client({
     domain: auth0Config.domain,
     clientId: auth0Config.clientId ?? "",
