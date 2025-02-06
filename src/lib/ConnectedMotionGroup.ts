@@ -1,4 +1,3 @@
-import { tryParseJson } from "./converters"
 import type {
   ControllerInstance,
   MotionGroupPhysical,
@@ -7,11 +6,12 @@ import type {
   RobotTcp,
   SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
+import { AxiosError } from "axios"
 import { makeAutoObservable, runInAction } from "mobx"
 import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import type { NovaClient } from "../NovaClient"
-import { AxiosError } from "axios"
+import { tryParseJson } from "./converters"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
+import type { NovaCellClient } from "./NovaCellClient"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
 
@@ -24,7 +24,7 @@ export type MotionGroupOption = {
  */
 export class ConnectedMotionGroup {
   static async connect(
-    nova: NovaClient,
+    cell: NovaCellClient,
     motionGroupId: string,
     controllers: ControllerInstance[],
   ) {
@@ -42,7 +42,7 @@ export class ConnectedMotionGroup {
       )
     }
 
-    const motionStateSocket = nova.openReconnectingWebsocket(
+    const motionStateSocket = cell.openReconnectingWebsocket(
       `/motion-groups/${motionGroupId}/state-stream`,
     )
 
@@ -66,7 +66,7 @@ export class ConnectedMotionGroup {
     let isVirtual = false
     try {
       const opMode =
-        await nova.api.virtualRobotMode.getOperationMode(controllerId)
+        await cell.api.virtualRobotMode.getOperationMode(controllerId)
 
       if (opMode) isVirtual = true
     } catch (err) {
@@ -80,16 +80,16 @@ export class ConnectedMotionGroup {
     }
 
     // Find out what TCPs this motion group has (we need it for jogging)
-    const { tcps } = await nova.api.motionGroupInfos.listTcps(motionGroupId)
+    const { tcps } = await cell.api.motionGroupInfos.listTcps(motionGroupId)
 
     const motionGroupSpecification =
-      await nova.api.motionGroupInfos.getMotionGroupSpecification(motionGroupId)
+      await cell.api.motionGroupInfos.getMotionGroupSpecification(motionGroupId)
 
     const safetySetup =
-      await nova.api.motionGroupInfos.getSafetySetup(motionGroupId)
+      await cell.api.motionGroupInfos.getSafetySetup(motionGroupId)
 
     return new ConnectedMotionGroup(
-      nova,
+      cell,
       controller,
       motionGroup,
       initialMotionState,
@@ -111,7 +111,7 @@ export class ConnectedMotionGroup {
   rapidlyChangingMotionState: MotionGroupStateResponse
 
   constructor(
-    readonly nova: NovaClient,
+    readonly cell: NovaCellClient,
     readonly controller: ControllerInstance,
     readonly motionGroup: MotionGroupPhysical,
     readonly initialMotionState: MotionGroupStateResponse,

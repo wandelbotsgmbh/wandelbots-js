@@ -6,10 +6,10 @@ import type {
 } from "@wandelbots/wandelbots-api-client"
 import { makeAutoObservable, runInAction } from "mobx"
 import { Vector3 } from "three"
-import type { NovaClient } from "../NovaClient"
 import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { tryParseJson } from "./converters"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
+import type { NovaCellClient } from "./NovaCellClient"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
 
@@ -56,9 +56,9 @@ function unwrapRotationVector(
  * Store representing the current state of a connected motion group.
  */
 export class MotionStreamConnection {
-  static async open(nova: NovaClient, motionGroupId: string) {
+  static async open(cell: NovaCellClient, motionGroupId: string) {
     const { instances: controllers } =
-      await nova.api.controller.listControllers()
+      await cell.api.controller.listControllers()
 
     const [_motionGroupIndex, controllerId] = motionGroupId.split("@") as [
       string,
@@ -74,7 +74,7 @@ export class MotionStreamConnection {
       )
     }
 
-    const motionStateSocket = nova.openReconnectingWebsocket(
+    const motionStateSocket = cell.openReconnectingWebsocket(
       `/motion-groups/${motionGroupId}/state-stream`,
     )
 
@@ -96,7 +96,7 @@ export class MotionStreamConnection {
     )
 
     return new MotionStreamConnection(
-      nova,
+      cell,
       controller,
       motionGroup,
       initialMotionState,
@@ -109,7 +109,7 @@ export class MotionStreamConnection {
   rapidlyChangingMotionState: MotionGroupStateResponse
 
   constructor(
-    readonly nova: NovaClient,
+    readonly cell: NovaCellClient,
     readonly controller: ControllerInstance,
     readonly motionGroup: MotionGroupPhysical,
     readonly initialMotionState: MotionGroupStateResponse,
