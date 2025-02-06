@@ -158,6 +158,7 @@ export class NovaCellAPIClient {
   readonly coordinateSystems = this.withCellId(CoordinateSystemsApi)
 
   readonly application = this.withCellId(ApplicationApi)
+  readonly applicationGlobal = this.withUnwrappedResponsesOnly(ApplicationApi)
 
   readonly motionGroupJogging = this.withCellId(MotionGroupJoggingApi)
 
