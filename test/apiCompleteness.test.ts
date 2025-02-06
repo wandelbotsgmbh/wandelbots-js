@@ -19,4 +19,17 @@ test("api client wraps all underlying endpoints", async () => {
     .sort()
 
   expect(knownApis).toEqual(wrappedApis)
+
+  const cell = nova.cell("cell")
+
+  const wrappedCellApis = Object.values(cell.api)
+    .map((api) => api.constructor?.name)
+    .filter((name) => name && name.endsWith("Api"))
+    .sort()
+
+  const knownCellApis = knownApis
+    .filter((name) => !["SystemApi", "CellApi"].includes(name))
+    .sort()
+
+  expect(knownCellApis).toEqual(wrappedCellApis)
 })
