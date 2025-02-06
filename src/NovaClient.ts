@@ -85,31 +85,42 @@ export class NovaClient {
       return request
     })
 
-    axiosInstance.interceptors.response.use(
-      (r) => r,
-      async (error) => {
-        if (isAxiosError(error) && error.response?.status === 401) {
-          // If we hit a 401, attempt to login the user and retry with
-          // a new access token
-          try {
-            await this.renewAuthentication()
+    if (typeof window !== "undefined") {
+      axiosInstance.interceptors.response.use(
+        (r) => r,
+        async (error) => {
+          if (isAxiosError(error)) {
+            if (error.response?.status === 401) {
+              // If we hit a 401, attempt to login the user and retry with
+              // a new access token
+              try {
+                await this.renewAuthentication()
 
-            if (error.config) {
-              if (this.accessToken) {
-                error.config.headers.Authorization = `Bearer ${this.accessToken}`
-              } else {
-                delete error.config.headers.Authorization
+                if (error.config) {
+                  if (this.accessToken) {
+                    error.config.headers.Authorization = `Bearer ${this.accessToken}`
+                  } else {
+                    delete error.config.headers.Authorization
+                  }
+                  return axiosInstance.request(error.config)
+                }
+              } catch (err) {
+                return Promise.reject(err)
               }
-              return axiosInstance.request(error.config)
+            } else if (error.response?.status === 503) {
+              // Check if the server as a whole is down
+              const res = await fetch(window.location.href)
+              if (res.status === 503) {
+                // Go to 503 page
+                window.location.reload()
+              }
             }
-          } catch (err) {
-            return Promise.reject(err)
           }
-        }
 
-        return Promise.reject(error)
-      },
-    )
+          return Promise.reject(error)
+        },
+      )
+    }
 
     this.api = new NovaCellAPIClient(cellId, {
       ...config,
