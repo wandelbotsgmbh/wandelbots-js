@@ -1,5 +1,5 @@
 import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
-import type { AxiosRequestConfig } from "axios"
+import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { isAxiosError } from "axios"
 import urlJoin from "url-join"
 import { loginWithAuth0 } from "./LoginWithAuth0.js"
@@ -54,6 +54,12 @@ export class NovaClient {
   authPromise: Promise<string | null> | null = null
   accessToken: string | null = null
 
+  /**
+   * The underlying axios instance used by NovaClient for all API calls.
+   * Not used for websocket connections.
+   */
+  axiosInstance: AxiosInstance
+
   constructor(config: NovaClientConfig) {
     const cellId = config.cellId ?? "cell"
     this.config = {
@@ -70,11 +76,11 @@ export class NovaClient {
     }
 
     // Set up Axios instance with interceptor for token fetching
-    const axiosInstance = axios.create({
+    this.axiosInstance = axios.create({
       baseURL: urlJoin(this.config.instanceUrl, "/api/v1"),
     })
 
-    axiosInstance.interceptors.request.use(async (request) => {
+    this.axiosInstance.interceptors.request.use(async (request) => {
       if (!request.headers.Authorization) {
         if (this.accessToken) {
           request.headers.Authorization = `Bearer ${this.accessToken}`
@@ -86,7 +92,7 @@ export class NovaClient {
     })
 
     if (typeof window !== "undefined") {
-      axiosInstance.interceptors.response.use(
+      this.axiosInstance.interceptors.response.use(
         (r) => r,
         async (error) => {
           if (isAxiosError(error)) {
@@ -102,7 +108,7 @@ export class NovaClient {
                   } else {
                     delete error.config.headers.Authorization
                   }
-                  return axiosInstance.request(error.config)
+                  return this.axiosInstance.request(error.config)
                 }
               } catch (err) {
                 return Promise.reject(err)
@@ -138,7 +144,7 @@ export class NovaClient {
           : {}),
         ...config.baseOptions,
       },
-      axiosInstance,
+      axiosInstance: this.axiosInstance,
     })
   }
 
