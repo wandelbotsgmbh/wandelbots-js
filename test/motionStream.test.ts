@@ -4,16 +4,16 @@ import { expect, test } from "vitest"
 import { NovaClient } from "../dist"
 
 test("motion stream", async () => {
-  const nova = new NovaClient({
+  const cell = new NovaClient({
     instanceUrl: "https://mock.example.com",
-  })
+  }).cell("cell")
 
-  const motionStream = await nova.connectMotionStream("0@mock-ur5e")
+  const motionStream = await cell.connectMotionStream("0@mock-ur5e")
   expect(motionStream.joints.length).toBe(6)
 
   // Test changing the url
   motionStream.motionStateSocket.changeUrl(
-    nova.makeWebsocketURL("/motion-groups/0@mock-ur5e/state-stream?tcp=foo"),
+    cell.makeWebsocketURL("/motion-groups/0@mock-ur5e/state-stream?tcp=foo"),
   )
 
   await motionStream.motionStateSocket.firstMessage()

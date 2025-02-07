@@ -8,7 +8,9 @@ test("things compile and initialize", async () => {
     instanceUrl: "https://mock.example.com",
   })
 
-  expect(nova.config.cellId).toBe("cell")
+  const cell = nova.cell("cell")
 
-  await nova.api.controller.listControllers()
+  expect(cell.cellId).toBe("cell")
+
+  await cell.api.controller.listControllers()
 })

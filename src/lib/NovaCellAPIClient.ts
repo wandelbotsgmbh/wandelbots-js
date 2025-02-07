@@ -1,7 +1,6 @@
 import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
 import {
   ApplicationApi,
-  CellApi,
   ControllerApi,
   ControllerIOsApi,
   CoordinateSystemsApi,
@@ -16,11 +15,11 @@ import {
   MotionGroupJoggingApi,
   MotionGroupKinematicApi,
   ProgramApi,
+  ProgramOperatorApi,
   ProgramValuesApi,
   StoreCollisionComponentsApi,
   StoreCollisionScenesApi,
   StoreObjectApi,
-  SystemApi,
   VirtualRobotApi,
   VirtualRobotBehaviorApi,
   VirtualRobotModeApi,
@@ -42,10 +41,6 @@ type UnwrapAxiosResponseReturn<T> = T extends (...a: any) => any
 
 export type WithCellId<T> = {
   [P in keyof T]: UnwrapAxiosResponseReturn<OmitFirstArg<T[P]>>
-}
-
-export type WithUnwrappedAxiosResponse<T> = {
-  [P in keyof T]: UnwrapAxiosResponseReturn<T[P]>
 }
 
 /**
@@ -100,81 +95,30 @@ export class NovaCellAPIClient {
     return apiClient as WithCellId<T>
   }
 
-  /**
-   * As withCellId, but only does the response unwrapping
-   */
-  private withUnwrappedResponsesOnly<T extends BaseAPI>(
-    ApiConstructor: new (
-      config: BaseConfiguration,
-      basePath: string,
-      axios: AxiosInstance,
-    ) => T,
-  ) {
-    const apiClient = new ApiConstructor(
-      {
-        ...this.opts,
-        isJsonMime: (mime: string) => {
-          return mime === "application/json"
-        },
-      },
-      this.opts.basePath ?? "",
-      this.opts.axiosInstance ?? axios.create(),
-    ) as {
-      [key: string | symbol]: any
-    }
-
-    for (const key of Reflect.ownKeys(Reflect.getPrototypeOf(apiClient)!)) {
-      if (key !== "constructor" && typeof apiClient[key] === "function") {
-        const originalFunction = apiClient[key]
-        apiClient[key] = (...args: any[]) => {
-          return originalFunction
-            .apply(apiClient, args)
-            .then((res: any) => res.data)
-        }
-      }
-    }
-
-    return apiClient as WithUnwrappedAxiosResponse<T>
-  }
-
-  readonly system = this.withUnwrappedResponsesOnly(SystemApi)
-  readonly cell = this.withUnwrappedResponsesOnly(CellApi)
-
-  readonly deviceConfig = this.withCellId(DeviceConfigurationApi)
-
+  readonly application = this.withCellId(ApplicationApi)
+  readonly controller = this.withCellId(ControllerApi)
+  readonly controllerIOs = this.withCellId(ControllerIOsApi)
+  readonly coordinateSystems = this.withCellId(CoordinateSystemsApi)
+  readonly deviceConfiguration = this.withCellId(DeviceConfigurationApi)
+  readonly libraryProgram = this.withCellId(LibraryProgramApi)
+  readonly libraryProgramMetadata = this.withCellId(LibraryProgramMetadataApi)
+  readonly libraryRecipe = this.withCellId(LibraryRecipeApi)
+  readonly libraryRecipeMetadata = this.withCellId(LibraryRecipeMetadataApi)
+  readonly motion = this.withCellId(MotionApi)
   readonly motionGroup = this.withCellId(MotionGroupApi)
   readonly motionGroupInfos = this.withCellId(MotionGroupInfosApi)
-
-  readonly controller = this.withCellId(ControllerApi)
-
-  readonly program = this.withCellId(ProgramApi)
-  readonly programValues = this.withCellId(ProgramValuesApi)
-
-  readonly controllerIOs = this.withCellId(ControllerIOsApi)
-
-  readonly motionGroupKinematic = this.withCellId(MotionGroupKinematicApi)
-  readonly motion = this.withCellId(MotionApi)
-
-  readonly coordinateSystems = this.withCellId(CoordinateSystemsApi)
-
-  readonly application = this.withCellId(ApplicationApi)
-  readonly applicationGlobal = this.withUnwrappedResponsesOnly(ApplicationApi)
-
   readonly motionGroupJogging = this.withCellId(MotionGroupJoggingApi)
-
-  readonly virtualRobot = this.withCellId(VirtualRobotApi)
-  readonly virtualRobotSetup = this.withCellId(VirtualRobotSetupApi)
-  readonly virtualRobotMode = this.withCellId(VirtualRobotModeApi)
-  readonly virtualRobotBehavior = this.withCellId(VirtualRobotBehaviorApi)
-
-  readonly libraryProgramMetadata = this.withCellId(LibraryProgramMetadataApi)
-  readonly libraryProgram = this.withCellId(LibraryProgramApi)
-  readonly libraryRecipeMetadata = this.withCellId(LibraryRecipeMetadataApi)
-  readonly libraryRecipe = this.withCellId(LibraryRecipeApi)
-
-  readonly storeObject = this.withCellId(StoreObjectApi)
+  readonly motionGroupKinematic = this.withCellId(MotionGroupKinematicApi)
+  readonly program = this.withCellId(ProgramApi)
+  readonly programOperator = this.withCellId(ProgramOperatorApi)
+  readonly programValues = this.withCellId(ProgramValuesApi)
   readonly storeCollisionComponents = this.withCellId(
     StoreCollisionComponentsApi,
   )
   readonly storeCollisionScenes = this.withCellId(StoreCollisionScenesApi)
+  readonly storeObject = this.withCellId(StoreObjectApi)
+  readonly virtualRobot = this.withCellId(VirtualRobotApi)
+  readonly virtualRobotBehavior = this.withCellId(VirtualRobotBehaviorApi)
+  readonly virtualRobotMode = this.withCellId(VirtualRobotModeApi)
+  readonly virtualRobotSetup = this.withCellId(VirtualRobotSetupApi)
 }

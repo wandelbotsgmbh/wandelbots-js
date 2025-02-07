@@ -1,9 +1,9 @@
 import { AxiosError } from "axios"
 import { makeAutoObservable, runInAction } from "mobx"
-import type { NovaClient } from "../NovaClient"
 import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { tryParseJson } from "./converters"
 import type { MotionStreamConnection } from "./MotionStreamConnection"
+import { NovaCellClient } from "./NovaCellClient"
 
 export type ProgramRunnerLogEntry = {
   timestamp: number
@@ -48,10 +48,10 @@ export class ProgramStateConnection {
 
   programStateSocket: AutoReconnectingWebsocket
 
-  constructor(readonly nova: NovaClient) {
+  constructor(readonly cell: NovaCellClient) {
     makeAutoObservable(this, {}, { autoBind: true })
 
-    this.programStateSocket = nova.openReconnectingWebsocket(`/programs/state`)
+    this.programStateSocket = cell.openReconnectingWebsocket(`/programs/state`)
 
     this.programStateSocket.addEventListener("message", (ev) => {
       const msg = tryParseJson(ev.data)
@@ -76,7 +76,7 @@ export class ProgramStateConnection {
 
     if (runner.state === ProgramState.Failed) {
       try {
-        const runnerState = await this.nova.api.program.getProgramRunner(
+        const runnerState = await this.cell.api.program.getProgramRunner(
           runner.id,
         )
 
@@ -100,7 +100,7 @@ export class ProgramStateConnection {
       this.gotoIdleState()
     } else if (runner.state === ProgramState.Stopped) {
       try {
-        const runnerState = await this.nova.api.program.getProgramRunner(
+        const runnerState = await this.cell.api.program.getProgramRunner(
           runner.id,
         )
 
@@ -120,7 +120,7 @@ export class ProgramStateConnection {
       this.gotoIdleState()
     } else if (runner.state === ProgramState.Completed) {
       try {
-        const runnerState = await this.nova.api.program.getProgramRunner(
+        const runnerState = await this.cell.api.program.getProgramRunner(
           runner.id,
         )
 
@@ -181,7 +181,7 @@ export class ProgramStateConnection {
     // So we need to explicitly stop jogging before running a program
     if (activeRobot) {
       try {
-        await this.nova.api.motionGroupJogging.stopJogging(
+        await this.cell.api.motionGroupJogging.stopJogging(
           activeRobot.motionGroupId,
         )
       } catch (err) {
@@ -193,7 +193,7 @@ export class ProgramStateConnection {
     const trimmedCode = openProgram.wandelscript!.replaceAll(/^\s*$/gm, "")
 
     try {
-      const programRunnerRef = await this.nova.api.program.createProgramRunner(
+      const programRunnerRef = await this.cell.api.program.createProgramRunner(
         {
           code: trimmedCode,
           initial_state: initial_state,
@@ -232,7 +232,7 @@ export class ProgramStateConnection {
     })
 
     try {
-      await this.nova.api.program.stopProgramRunner(
+      await this.cell.api.program.stopProgramRunner(
         this.currentlyExecutingProgramRunnerId,
       )
     } catch (err) {

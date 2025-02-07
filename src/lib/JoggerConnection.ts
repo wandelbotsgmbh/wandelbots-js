@@ -5,10 +5,10 @@ import type {
 } from "@wandelbots/wandelbots-api-client"
 import isEqual from "lodash-es/isEqual"
 import { Vector3 } from "three/src/math/Vector3.js"
-import type { NovaClient } from "../NovaClient"
 import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
 import { isSameCoordinateSystem, tryParseJson } from "./converters"
 import type { MotionStreamConnection } from "./MotionStreamConnection"
+import type { NovaCellClient } from "./NovaCellClient"
 
 export type JoggerConnectionOpts = {
   /**
@@ -30,11 +30,11 @@ export class JoggerConnection {
   } = {}
 
   static async open(
-    nova: NovaClient,
+    cell: NovaCellClient,
     motionGroupId: string,
     opts: JoggerConnectionOpts = {},
   ) {
-    const motionStream = await nova.connectMotionStream(motionGroupId)
+    const motionStream = await cell.connectMotionStream(motionGroupId)
 
     return new JoggerConnection(motionStream, opts)
   }
@@ -48,8 +48,8 @@ export class JoggerConnection {
     return this.motionStream.motionGroupId
   }
 
-  get nova() {
-    return this.motionStream.nova
+  get cell() {
+    return this.motionStream.cell
   }
 
   get numJoints() {
@@ -132,7 +132,7 @@ export class JoggerConnection {
     }
 
     if (mode === "cartesian" && !this.cartesianWebsocket) {
-      this.cartesianWebsocket = this.nova.openReconnectingWebsocket(
+      this.cartesianWebsocket = this.cell.openReconnectingWebsocket(
         `/motion-groups/move-tcp`,
       )
 
@@ -152,7 +152,7 @@ export class JoggerConnection {
     }
 
     if (mode === "joint" && !this.jointWebsocket) {
-      this.jointWebsocket = this.nova.openReconnectingWebsocket(
+      this.jointWebsocket = this.cell.openReconnectingWebsocket(
         `/motion-groups/move-joint`,
       )
 
@@ -393,7 +393,7 @@ export class JoggerConnection {
       })
     }
 
-    const motionPlanRes = await this.nova.api.motion.planMotion({
+    const motionPlanRes = await this.cell.api.motion.planMotion({
       motion_group: this.motionGroupId,
       start_joint_position: currentJoints,
       tcp: this.cartesianJoggingOpts.tcpId,
@@ -407,7 +407,7 @@ export class JoggerConnection {
       )
     }
 
-    await this.nova.api.motion.streamMoveForward(
+    await this.cell.api.motion.streamMoveForward(
       plannedMotion,
       100,
       undefined,
@@ -444,7 +444,7 @@ export class JoggerConnection {
       currentJoints.joints.length,
     ).fill(velocityRadsPerSec)
 
-    const motionPlanRes = await this.nova.api.motion.planMotion({
+    const motionPlanRes = await this.cell.api.motion.planMotion({
       motion_group: this.motionGroupId,
       start_joint_position: currentJoints,
       commands: [
@@ -469,7 +469,7 @@ export class JoggerConnection {
       return
     }
 
-    await this.nova.api.motion.streamMoveForward(
+    await this.cell.api.motion.streamMoveForward(
       plannedMotion,
       100,
       undefined,

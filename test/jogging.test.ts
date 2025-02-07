@@ -4,11 +4,11 @@ import { expect, test } from "vitest"
 import { NovaClient } from "../dist"
 
 test("jogging", async () => {
-  const nova = new NovaClient({
+  const cell = new NovaClient({
     instanceUrl: "https://mock.example.com",
-  })
+  }).cell("cell")
 
-  const jogger = await nova.connectJogger("0@mock-ur5e")
+  const jogger = await cell.connectJogger("0@mock-ur5e")
 
   jogger.setJoggingMode("cartesian", {
     tcpId: "tcp",
