@@ -53,6 +53,11 @@ export class NovaClient {
   readonly mock?: MockNovaInstance
   authPromise: Promise<string | null> | null = null
   accessToken: string | null = null
+
+  /**
+   * The underlying axios instance used by NovaClient for all API calls.
+   * Not used for websocket connections.
+   */
   axiosInstance: AxiosInstance
 
   constructor(config: NovaClientConfig) {
