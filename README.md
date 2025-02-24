@@ -45,11 +45,11 @@ const nova = new NovaClient({
 
 You can make calls to the REST API via `nova.api`, which contains a bunch of namespaced methods for each endpoint generated from the OpenAPI spec and documentation.
 
-For example, to list the devices configured in your cell:
+For example, to list the controllers configured in your cell:
 
 ```ts
-const devices = await nova.api.deviceConfig.listDevices()
-// -> e.g. [{ type: 'controller', identifier: 'abb_irb1200_7', ... }, ...]
+const { instances } = await nova.api.controller.listControllers()
+// -> e.g. [{ controller: "ur5e", model_name: "UniversalRobots::Controller", ... }, ...]
 ```
 
 Documentation for the various API endpoints is available on your Nova instance at `/api/v1/ui` (public documentation site is in the works)
