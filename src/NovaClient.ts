@@ -1,13 +1,10 @@
 import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
-import type { AxiosRequestConfig } from "axios"
+import type { AxiosInstance, AxiosRequestConfig } from "axios"
 import axios, { isAxiosError } from "axios"
 import urlJoin from "url-join"
-import { loginWithAuth0 } from "./LoginWithAuth0.js"
-import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
-import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
-import { JoggerConnection } from "./lib/JoggerConnection"
-import { MotionStreamConnection } from "./lib/MotionStreamConnection"
-import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
+import { loginWithAuth0 } from "./lib/LoginWithAuth0.js"
+import { NovaAPIClient } from "./lib/NovaAPIClient"
+import { NovaCellClient } from "./lib/NovaCellClient.js"
 import { availableStorage } from "./lib/availableStorage.js"
 import { MockNovaInstance } from "./mock/MockNovaInstance"
 
@@ -42,24 +39,17 @@ export type NovaClientConfig = {
   accessToken?: string
 } & Omit<BaseConfiguration, "isJsonMime" | "basePath">
 
-type NovaClientConfigWithDefaults = NovaClientConfig & { cellId: string }
-
 /**
  * Client for connecting to a Nova instance and controlling robots.
  */
 export class NovaClient {
-  readonly api: NovaCellAPIClient
-  readonly config: NovaClientConfigWithDefaults
+  readonly api: NovaAPIClient
   readonly mock?: MockNovaInstance
+  readonly axiosInstance: AxiosInstance
   authPromise: Promise<string | null> | null = null
   accessToken: string | null = null
 
-  constructor(config: NovaClientConfig) {
-    const cellId = config.cellId ?? "cell"
-    this.config = {
-      cellId,
-      ...config,
-    }
+  constructor(readonly config: NovaClientConfig) {
     this.accessToken =
       config.accessToken ||
       availableStorage.getString("wbjs.access_token") ||
@@ -70,11 +60,11 @@ export class NovaClient {
     }
 
     // Set up Axios instance with interceptor for token fetching
-    const axiosInstance = axios.create({
+    this.axiosInstance = axios.create({
       baseURL: urlJoin(this.config.instanceUrl, "/api/v1"),
     })
 
-    axiosInstance.interceptors.request.use(async (request) => {
+    this.axiosInstance.interceptors.request.use(async (request) => {
       if (!request.headers.Authorization) {
         if (this.accessToken) {
           request.headers.Authorization = `Bearer ${this.accessToken}`
@@ -86,7 +76,7 @@ export class NovaClient {
     })
 
     if (typeof window !== "undefined") {
-      axiosInstance.interceptors.response.use(
+      this.axiosInstance.interceptors.response.use(
         (r) => r,
         async (error) => {
           if (isAxiosError(error)) {
@@ -102,7 +92,7 @@ export class NovaClient {
                   } else {
                     delete error.config.headers.Authorization
                   }
-                  return axiosInstance.request(error.config)
+                  return this.axiosInstance.request(error.config)
                 }
               } catch (err) {
                 return Promise.reject(err)
@@ -122,12 +112,9 @@ export class NovaClient {
       )
     }
 
-    this.api = new NovaCellAPIClient(cellId, {
+    this.api = new NovaAPIClient({
       ...config,
       basePath: urlJoin(this.config.instanceUrl, "/api/v1"),
-      isJsonMime: (mime: string) => {
-        return mime === "application/json"
-      },
       baseOptions: {
         ...(this.mock
           ? ({
@@ -138,16 +125,19 @@ export class NovaClient {
           : {}),
         ...config.baseOptions,
       },
-      axiosInstance,
+      axiosInstance: this.axiosInstance,
     })
   }
 
-  async renewAuthentication(): Promise<void> {
-    if (this.authPromise) {
-      // Don't double up
-      return
-    }
+  /**
+   * Get a NovaCellClient for making requests to
+   * a specific cell on the Nova instance.
+   */
+  cell(cellId: string): NovaCellClient {
+    return new NovaCellClient(this, cellId)
+  }
 
+  async renewAuthentication(): Promise<void> {
     this.authPromise = loginWithAuth0(this.config.instanceUrl)
     try {
       this.accessToken = await this.authPromise
@@ -160,73 +150,5 @@ export class NovaClient {
     } finally {
       this.authPromise = null
     }
-  }
-
-  makeWebsocketURL(path: string): string {
-    const url = new URL(
-      urlJoin(
-        this.config.instanceUrl,
-        `/api/v1/cells/${this.config.cellId}`,
-        path,
-      ),
-    )
-    url.protocol = url.protocol.replace("http", "ws")
-    url.protocol = url.protocol.replace("https", "wss")
-
-    // If provided, add basic auth credentials to the URL
-    // NOTE - basic auth is deprecated on websockets and doesn't work in Safari
-    // use tokens instead
-    if (this.accessToken) {
-      url.searchParams.append("token", this.accessToken)
-    } else if (this.config.username && this.config.password) {
-      url.username = this.config.username
-      url.password = this.config.password
-    }
-
-    return url.toString()
-  }
-
-  /**
-   * Retrieve an AutoReconnectingWebsocket to the given path on the Nova instance.
-   * If you explicitly want to reconnect an existing websocket, call `reconnect`
-   * on the returned object.
-   */
-  openReconnectingWebsocket(path: string) {
-    return new AutoReconnectingWebsocket(this.makeWebsocketURL(path), {
-      mock: this.mock,
-    })
-  }
-
-  /**
-   * Connect to the motion state websocket(s) for a given motion group
-   */
-  async connectMotionStream(motionGroupId: string) {
-    return await MotionStreamConnection.open(this, motionGroupId)
-  }
-
-  /**
-   * Connect to the jogging websocket(s) for a given motion group
-   */
-  async connectJogger(motionGroupId: string) {
-    return await JoggerConnection.open(this, motionGroupId)
-  }
-
-  async connectMotionGroups(
-    motionGroupIds: string[],
-  ): Promise<ConnectedMotionGroup[]> {
-    const { instances } = await this.api.controller.listControllers()
-
-    return Promise.all(
-      motionGroupIds.map((motionGroupId) =>
-        ConnectedMotionGroup.connect(this, motionGroupId, instances),
-      ),
-    )
-  }
-
-  async connectMotionGroup(
-    motionGroupId: string,
-  ): Promise<ConnectedMotionGroup> {
-    const motionGroups = await this.connectMotionGroups([motionGroupId])
-    return motionGroups[0]!
   }
 }
