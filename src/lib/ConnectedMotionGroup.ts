@@ -1,16 +1,21 @@
-import { tryParseJson } from "./converters"
 import type {
   ControllerInstance,
   MotionGroupPhysical,
   MotionGroupSpecification,
   MotionGroupStateResponse,
+  Mounting,
+  RobotControllerState,
+  RobotControllerStateOperationModeEnum,
+  RobotControllerStateSafetyStateEnum,
   RobotTcp,
   SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
 import { makeAutoObservable, runInAction } from "mobx"
-import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
+import { Quaternion } from "three/src/math/Quaternion.js"
+import { Vector3 } from "three/src/math/Vector3.js"
 import type { NovaClient } from "../NovaClient"
-import { AxiosError } from "axios"
+import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
+import { tryParseJson } from "./converters"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
@@ -62,22 +67,49 @@ export class ConnectedMotionGroup {
       initialMotionState,
     )
 
-    // This is used to determine if the robot is virtual or physical
-    let isVirtual = false
-    try {
-      const opMode =
-        await nova.api.virtualRobotMode.getOperationMode(controllerId)
+    // Check if robot is virtual or physical
+    const config = await nova.api.controller.getRobotController(
+      controller.controller,
+    )
+    const isVirtual = config.configuration.kind === "VirtualController"
 
-      if (opMode) isVirtual = true
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        console.log(
-          `Received ${err.status} from getOperationMode, concluding that ${controllerId} is physical`,
+    // If there's a configured mounting, we need it to show the right
+    // position of the robot model
+    const mounting = await (async () => {
+      try {
+        const mounting = await nova.api.motionGroupInfos.getMounting(
+          motionGroup.motion_group,
         )
-      } else {
-        throw err
+        return mounting
+      } catch (err) {
+        console.error(
+          `Error fetching mounting for ${motionGroup.motion_group}`,
+          err,
+        )
+        return null
       }
+    })()
+
+    // Open the websocket to monitor controller state for e.g. e-stop
+    const controllerStateSocket = nova.openReconnectingWebsocket(
+      `/controllers/${controller.controller}/state-stream?response_rate=1000`,
+    )
+
+    // Wait for the first message to get the initial state
+    const firstControllerMessage = await controllerStateSocket.firstMessage()
+    const initialControllerState = tryParseJson(firstControllerMessage.data)
+      ?.result as RobotControllerState
+
+    if (!initialControllerState) {
+      throw new Error(
+        `Unable to parse initial controller state message ${firstControllerMessage.data}`,
+      )
     }
+
+    console.log(
+      `Connected controller state websocket to controller ${controller.controller}. Initial state:\n  `,
+      initialControllerState,
+    )
 
     // Find out what TCPs this motion group has (we need it for jogging)
     const { tcps } = await nova.api.motionGroupInfos.listTcps(motionGroupId)
@@ -98,6 +130,9 @@ export class ConnectedMotionGroup {
       tcps!,
       motionGroupSpecification,
       safetySetup,
+      mounting,
+      initialControllerState,
+      controllerStateSocket,
     )
   }
 
@@ -110,6 +145,18 @@ export class ConnectedMotionGroup {
   // using animation frames
   rapidlyChangingMotionState: MotionGroupStateResponse
 
+  // Response rate on the websocket should be a bit slower on this one since
+  // we don't use the motion data
+  controllerState: RobotControllerState
+
+  /**
+   * Reflects activation state of the motion group / robot servos. The
+   * movement controls in the UI should only be enabled in the "active" state
+   */
+  activationState: "inactive" | "activating" | "deactivating" | "active" =
+    "inactive"
+
+
   constructor(
     readonly nova: NovaClient,
     readonly controller: ControllerInstance,
@@ -120,8 +167,25 @@ export class ConnectedMotionGroup {
     readonly tcps: RobotTcp[],
     readonly motionGroupSpecification: MotionGroupSpecification,
     readonly safetySetup: SafetySetup,
+    readonly mounting: Mounting | null,
+    readonly initialControllerState: RobotControllerState,
+    readonly controllerStateSocket: AutoReconnectingWebsocket,
   ) {
     this.rapidlyChangingMotionState = initialMotionState
+    this.controllerState = initialControllerState
+
+    // Track controller state updates (e.g. safety state and operation mode)
+    controllerStateSocket.addEventListener("message", (event) => {
+      const data = tryParseJson(event.data)?.result
+
+      if (!data) {
+        return
+      }
+
+      runInAction(() => {
+        this.controllerState = data
+      })
+    })
 
     motionStateSocket.addEventListener("message", (event) => {
       const motionStateResponse = tryParseJson(event.data)?.result as
@@ -200,6 +264,147 @@ export class ConnectedMotionGroup {
 
   get safetyZones() {
     return this.safetySetup.safety_zones
+  }
+
+  /** Gets the robot mounting position offset in 3D viz coordinates */
+  get mountingPosition(): [number, number, number] {
+    if (!this.mounting) {
+      return [0, 0, 0]
+    }
+
+    return [
+      this.mounting.pose.position.x / 1000,
+      this.mounting.pose.position.y / 1000,
+      this.mounting.pose.position.z / 1000,
+    ]
+  }
+
+  /** Gets the robot mounting position rotation in 3D viz coordinates */
+  get mountingQuaternion() {
+    const rotationVector = new Vector3(
+      this.mounting?.pose.orientation?.x || 0,
+      this.mounting?.pose.orientation?.y || 0,
+      this.mounting?.pose.orientation?.z || 0,
+    )
+
+    const magnitude = rotationVector.length()
+    const axis = rotationVector.normalize()
+
+    return new Quaternion().setFromAxisAngle(axis, magnitude)
+  }
+
+  /**
+   * Whether the controller is currently in a safety state
+   * corresponding to an emergency stop
+   */
+  get isEstopActive() {
+    const estopStates: RobotControllerStateSafetyStateEnum[] = [
+      "SAFETY_STATE_ROBOT_EMERGENCY_STOP",
+      "SAFETY_STATE_DEVICE_EMERGENCY_STOP",
+    ]
+
+    return estopStates.includes(this.controllerState.safety_state)
+  }
+
+  /**
+   * Whether the controller is in a safety state
+   * that may be non-functional for robot pad purposes
+   */
+  get isMoveableSafetyState() {
+    const goodSafetyStates: RobotControllerStateSafetyStateEnum[] = [
+      "SAFETY_STATE_NORMAL",
+      "SAFETY_STATE_REDUCED",
+    ]
+
+    return goodSafetyStates.includes(this.controllerState.safety_state)
+  }
+
+  /**
+   * Whether the controller is in an operation mode that allows movement
+   */
+  get isMoveableOperationMode() {
+    const goodOperationModes: RobotControllerStateOperationModeEnum[] = [
+      "OPERATION_MODE_AUTO",
+      "OPERATION_MODE_MANUAL",
+      "OPERATION_MODE_MANUAL_T1",
+      "OPERATION_MODE_MANUAL_T2",
+    ]
+
+    return goodOperationModes.includes(this.controllerState.operation_mode)
+  }
+
+  /**
+   * Whether the robot is currently active and can be moved, based on the
+   * safety state, operation mode and servo toggle activation state.
+   */
+  get canBeMoved() {
+    return (
+      this.isMoveableSafetyState &&
+      this.isMoveableOperationMode &&
+      this.activationState === "active"
+    )
+  }
+
+  async deactivate() {
+    if (this.activationState !== "active") {
+      console.error("Tried to deactivate while already deactivating")
+      return
+    }
+
+    runInAction(() => {
+      this.activationState = "deactivating"
+    })
+
+    try {
+      await this.nova.api.controller.setDefaultMode(
+        this.controllerId,
+        "MODE_MONITOR",
+      )
+
+      runInAction(() => {
+        this.activationState = "inactive"
+      })
+    } catch (err) {
+      runInAction(() => {
+        this.activationState = "active"
+      })
+      throw err
+    }
+  }
+
+  async activate() {
+    if (this.activationState !== "inactive") {
+      console.error("Tried to activate while already activating")
+      return
+    }
+
+    runInAction(() => {
+      this.activationState = "activating"
+    })
+
+    try {
+      await this.nova.api.controller.setDefaultMode(
+        this.controllerId,
+        "MODE_CONTROL",
+      )
+
+      runInAction(() => {
+        this.activationState = "active"
+      })
+    } catch (err) {
+      runInAction(() => {
+        this.activationState = "inactive"
+      })
+      throw err
+    }
+  }
+
+  toggleActivation() {
+    if (this.activationState === "inactive") {
+      this.activate()
+    } else if (this.activationState === "active") {
+      this.deactivate()
+    }
   }
 
   dispose() {
