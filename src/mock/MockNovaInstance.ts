@@ -2,6 +2,7 @@ import type {
   ControllerInstanceList,
   MotionGroupSpecification,
   MotionGroupStateResponse,
+  RobotController,
   SafetySetup,
 } from "@wandelbots/wandelbots-api-client"
 import type { AxiosResponse, InternalAxiosRequestConfig } from "axios"
@@ -44,6 +45,21 @@ export class MockNovaInstance {
               },
             ],
           } satisfies ControllerInstanceList
+        },
+      },
+      {
+        method: "GET",
+        path: "/cells/:cellId/controllers/:controllerId",
+        handle() {
+          return {
+            configuration: {
+              kind: "VirtualController",
+              manufacturer: "universalrobots",
+              position: "[0,-1.571,-1.571,-1.571,1.571,-1.571,0]",
+              type: "universalrobots-ur5e",
+            },
+            name: "mock-ur5",
+          } satisfies RobotController
         },
       },
       {
