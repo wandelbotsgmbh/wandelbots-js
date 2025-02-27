@@ -156,7 +156,6 @@ export class ConnectedMotionGroup {
   activationState: "inactive" | "activating" | "deactivating" | "active" =
     "inactive"
 
-  disposers: (() => void)[] = []
 
   constructor(
     readonly nova: NovaClient,
