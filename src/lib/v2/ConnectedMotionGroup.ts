@@ -1,17 +1,17 @@
-import { tryParseJson } from "./converters"
 import type {
-  ControllerInstance,
+  Controller,
   MotionGroupPhysical,
   MotionGroupSpecification,
-  MotionGroupStateResponse,
+  MotionGroupState,
   RobotTcp,
   SafetySetup,
-} from "@wandelbots/wandelbots-api-client"
-import { makeAutoObservable, runInAction } from "mobx"
-import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import type { NovaClient } from "../NovaClient"
+} from "@wandelbots/nova-api/v2"
 import { AxiosError } from "axios"
+import { makeAutoObservable, runInAction } from "mobx"
+import type { AutoReconnectingWebsocket } from "../AutoReconnectingWebsocket"
+import { tryParseJson } from "../converters"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
+import type { NovaClient } from "./NovaClient"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
 
@@ -26,14 +26,14 @@ export class ConnectedMotionGroup {
   static async connect(
     nova: NovaClient,
     motionGroupId: string,
-    controllers: ControllerInstance[],
+    controllers: Controller[],
   ) {
     const [_motionGroupIndex, controllerId] = motionGroupId.split("@") as [
       string,
       string,
     ]
     const controller = controllers.find((c) => c.controller === controllerId)
-    const motionGroup = controller?.physical_motion_groups.find(
+    const motionGroup = controller?.motion_groups.find(
       (mg) => mg.motion_group === motionGroupId,
     )
     if (!controller || !motionGroup) {
@@ -49,7 +49,7 @@ export class ConnectedMotionGroup {
     // Wait for the first message to get the initial state
     const firstMessage = await motionStateSocket.firstMessage()
     const initialMotionState = tryParseJson(firstMessage.data)
-      ?.result as MotionGroupStateResponse
+      ?.result as MotionGroupState
 
     if (!initialMotionState) {
       throw new Error(
@@ -108,13 +108,13 @@ export class ConnectedMotionGroup {
 
   // Not mobx-observable as this changes very fast; should be observed
   // using animation frames
-  rapidlyChangingMotionState: MotionGroupStateResponse
+  rapidlyChangingMotionState: MotionGroupState
 
   constructor(
     readonly nova: NovaClient,
-    readonly controller: ControllerInstance,
+    readonly controller: Controller,
     readonly motionGroup: MotionGroupPhysical,
-    readonly initialMotionState: MotionGroupStateResponse,
+    readonly initialMotionState: MotionGroupState,
     readonly motionStateSocket: AutoReconnectingWebsocket,
     readonly isVirtual: boolean,
     readonly tcps: RobotTcp[],
@@ -125,7 +125,7 @@ export class ConnectedMotionGroup {
 
     motionStateSocket.addEventListener("message", (event) => {
       const motionStateResponse = tryParseJson(event.data)?.result as
-        | MotionGroupStateResponse
+        | MotionGroupState
         | undefined
 
       if (!motionStateResponse) {
@@ -137,13 +137,13 @@ export class ConnectedMotionGroup {
       // handle motionState message
       if (
         !jointValuesEqual(
-          this.rapidlyChangingMotionState.state.joint_position.joints,
-          motionStateResponse.state.joint_position.joints,
+          this.rapidlyChangingMotionState.joint_position.joints,
+          motionStateResponse.joint_position.joints,
           MOTION_DELTA_THRESHOLD,
         )
       ) {
         runInAction(() => {
-          this.rapidlyChangingMotionState.state = motionStateResponse.state
+          this.rapidlyChangingMotionState = motionStateResponse
         })
       }
 
@@ -187,7 +187,7 @@ export class ConnectedMotionGroup {
   }
 
   get joints() {
-    return this.initialMotionState.state.joint_position.joints.map((_, i) => {
+    return this.initialMotionState.joint_position.joints.map((_, i) => {
       return {
         index: i,
       }

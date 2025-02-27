@@ -1,9 +1,9 @@
 import { AxiosError } from "axios"
 import { makeAutoObservable, runInAction } from "mobx"
-import type { NovaClient } from "../NovaClient"
-import { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import { tryParseJson } from "./converters"
+import { AutoReconnectingWebsocket } from "../AutoReconnectingWebsocket"
+import { tryParseJson } from "../converters"
 import type { MotionStreamConnection } from "./MotionStreamConnection"
+import type { NovaClient } from "./NovaClient"
 
 export type ProgramRunnerLogEntry = {
   timestamp: number
