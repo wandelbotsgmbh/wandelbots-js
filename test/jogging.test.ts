@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
 import { expect, test } from "vitest"
-import { v1 } from "../dist/index"
+import { NovaClient } from "../dist/lib/v1/NovaClient"
 
 test("jogging", async () => {
-  const nova = new v1.NovaClient({
+  const nova = new NovaClient({
     instanceUrl: "https://mock.example.com",
   })
 

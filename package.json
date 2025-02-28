@@ -8,6 +8,14 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./v1": {
+      "import": "./dist/lib/v1/index.js",
+      "require": "./dist/lib/v1/index.cjs"
+    },
+    "./v2": {
+      "import": "./dist/lib/v2/index.js",
+      "require": "./dist/lib/v2/index.cjs"
     }
   },
   "main": "./dist/index.js",
