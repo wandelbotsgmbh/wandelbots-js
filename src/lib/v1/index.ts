@@ -1,3 +1,4 @@
+export * from "@wandelbots/nova-api/v1"
 export * from "./ConnectedMotionGroup"
 export * from "./getLatestTrajectories"
 export * from "./JoggerConnection"
