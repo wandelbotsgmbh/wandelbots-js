@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import { expect, test } from "vitest"
-import { NovaClient } from "../dist/lib/v1/NovaClient"
+import { NovaClient } from "../dist/lib/v1"
 
 test("motion stream", async () => {
   const nova = new NovaClient({
