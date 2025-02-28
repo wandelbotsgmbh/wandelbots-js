@@ -5,11 +5,11 @@ import urlJoin from "url-join"
 import { loginWithAuth0 } from "../../LoginWithAuth0.js"
 import { AutoReconnectingWebsocket } from "../AutoReconnectingWebsocket.js"
 import { availableStorage } from "../availableStorage.js"
-import { MockNovaInstance } from "../v2/mock/MockNovaInstance.js"
 import { ConnectedMotionGroup } from "./ConnectedMotionGroup.js"
 import { JoggerConnection } from "./JoggerConnection.js"
 import { MotionStreamConnection } from "./MotionStreamConnection.js"
 import { NovaCellAPIClient } from "./NovaCellAPIClient.js"
+import { MockNovaInstance } from "./mock/MockNovaInstance.js"
 
 export type NovaClientConfig = {
   /**

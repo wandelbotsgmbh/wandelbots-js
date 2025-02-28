@@ -76,7 +76,7 @@ export class NovaClient {
 
     // Set up Axios instance with interceptor for token fetching
     const axiosInstance = axios.create({
-      baseURL: urlJoin(this.config.instanceUrl, "/api/v1"),
+      baseURL: urlJoin(this.config.instanceUrl, "/api/v2"),
     })
 
     axiosInstance.interceptors.request.use(async (request) => {
