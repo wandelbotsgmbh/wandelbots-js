@@ -8,7 +8,7 @@ import type {
 import type { AxiosResponse, InternalAxiosRequestConfig } from "axios"
 import { AxiosError } from "axios"
 import * as pathToRegexp from "path-to-regexp"
-import type { AutoReconnectingWebsocket } from "../lib/AutoReconnectingWebsocket"
+import type { AutoReconnectingWebsocket } from "../../AutoReconnectingWebsocket"
 
 /**
  * EXPERIMENTAL

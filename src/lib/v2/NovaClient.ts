@@ -3,10 +3,10 @@ import type { AxiosRequestConfig } from "axios"
 import axios, { isAxiosError } from "axios"
 import urlJoin from "url-join"
 import { loginWithAuth0 } from "../../LoginWithAuth0"
-import { MockNovaInstance } from "../../mock/MockNovaInstance"
 import { AutoReconnectingWebsocket } from "../AutoReconnectingWebsocket"
 import { availableStorage } from "../availableStorage"
 import { ConnectedMotionGroup } from "./ConnectedMotionGroup"
+import { MockNovaInstance } from "./mock/MockNovaInstance"
 import { MotionStreamConnection } from "./MotionStreamConnection"
 import { NovaCellAPIClient } from "./NovaCellAPIClient"
 
@@ -44,6 +44,11 @@ export type NovaClientConfig = {
 type NovaClientConfigWithDefaults = NovaClientConfig & { cellId: string }
 
 /**
+ * EXPERIMENTAL
+ *
+ * This client provides a starting point to migrate NOVA api v2.
+ * As v2 is still in development, this client has to be considered unstable
+ *
  * Client for connecting to a Nova instance and controlling robots.
  */
 export class NovaClient {
@@ -54,6 +59,7 @@ export class NovaClient {
   accessToken: string | null = null
 
   constructor(config: NovaClientConfig) {
+    console.warn("Using experimental NOVA v2 client")
     const cellId = config.cellId ?? "cell"
     this.config = {
       cellId,
