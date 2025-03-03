@@ -1,4 +1,4 @@
-import type { TcpPose } from "@wandelbots/wandelbots-api-client"
+import type { TcpPose } from "@wandelbots/nova-api/v2"
 
 export function jointValuesEqual(
   oldJointValues: number[],
@@ -37,12 +37,12 @@ export function tcpPoseEqual(
   }
 
   let changedDelta = 0
-  changedDelta += Math.abs(oldTcp.orientation.x - newTcp.orientation.x)
-  changedDelta += Math.abs(oldTcp.orientation.y - newTcp.orientation.y)
-  changedDelta += Math.abs(oldTcp.orientation.z - newTcp.orientation.z)
-  changedDelta += Math.abs(oldTcp.position.x - newTcp.position.x)
-  changedDelta += Math.abs(oldTcp.position.y - newTcp.position.y)
-  changedDelta += Math.abs(oldTcp.position.z - newTcp.position.z)
+  changedDelta += Math.abs(oldTcp.orientation[0] - newTcp.orientation[0])
+  changedDelta += Math.abs(oldTcp.orientation[1] - newTcp.orientation[1])
+  changedDelta += Math.abs(oldTcp.orientation[2] - newTcp.orientation[2])
+  changedDelta += Math.abs(oldTcp.position[0] - newTcp.position[0])
+  changedDelta += Math.abs(oldTcp.position[1] - newTcp.position[1])
+  changedDelta += Math.abs(oldTcp.position[2] - newTcp.position[2])
 
   if (changedDelta > changeDeltaThreshold) {
     return false

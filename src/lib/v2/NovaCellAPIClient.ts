@@ -1,32 +1,30 @@
-import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
+import type { Configuration as BaseConfiguration } from "@wandelbots/nova-api/v2"
 import {
   ApplicationApi,
   CellApi,
   ControllerApi,
-  ControllerIOsApi,
+  ControllerInputsOutputsApi,
   CoordinateSystemsApi,
-  DeviceConfigurationApi,
-  LibraryProgramApi,
-  LibraryProgramMetadataApi,
-  LibraryRecipeApi,
-  LibraryRecipeMetadataApi,
-  MotionApi,
+  JoggingApi,
   MotionGroupApi,
-  MotionGroupInfosApi,
-  MotionGroupJoggingApi,
-  MotionGroupKinematicApi,
+  MotionGroupInfoApi,
+  MotionGroupKinematicsApi,
   ProgramApi,
-  ProgramValuesApi,
+  ProgramLibraryApi,
+  ProgramLibraryMetadataApi,
+  ProgramOperatorApi,
   StoreCollisionComponentsApi,
   StoreCollisionScenesApi,
   StoreObjectApi,
   SystemApi,
+  TrajectoryExecutionApi,
+  TrajectoryPlanningApi,
   VirtualRobotApi,
   VirtualRobotBehaviorApi,
   VirtualRobotModeApi,
   VirtualRobotSetupApi,
-} from "@wandelbots/wandelbots-api-client"
-import type { BaseAPI } from "@wandelbots/wandelbots-api-client/base"
+} from "@wandelbots/nova-api/v2"
+import type { BaseAPI } from "@wandelbots/nova-api/v2/base"
 import type { AxiosInstance } from "axios"
 import axios from "axios"
 
@@ -140,37 +138,33 @@ export class NovaCellAPIClient {
   readonly system = this.withUnwrappedResponsesOnly(SystemApi)
   readonly cell = this.withUnwrappedResponsesOnly(CellApi)
 
-  readonly deviceConfig = this.withCellId(DeviceConfigurationApi)
-
   readonly motionGroup = this.withCellId(MotionGroupApi)
-  readonly motionGroupInfos = this.withCellId(MotionGroupInfosApi)
+  readonly motionGroupInfos = this.withCellId(MotionGroupInfoApi)
 
   readonly controller = this.withCellId(ControllerApi)
 
   readonly program = this.withCellId(ProgramApi)
-  readonly programValues = this.withCellId(ProgramValuesApi)
+  readonly programOperator = this.withCellId(ProgramOperatorApi)
+  readonly programLibraryMetadata = this.withCellId(ProgramLibraryMetadataApi)
+  readonly programLibrary = this.withCellId(ProgramLibraryApi)
 
-  readonly controllerIOs = this.withCellId(ControllerIOsApi)
+  readonly controllerIOs = this.withCellId(ControllerInputsOutputsApi)
 
-  readonly motionGroupKinematic = this.withCellId(MotionGroupKinematicApi)
-  readonly motion = this.withCellId(MotionApi)
+  readonly motionGroupKinematic = this.withCellId(MotionGroupKinematicsApi)
+  readonly trajectoryPlanning = this.withCellId(TrajectoryPlanningApi)
+  readonly trajectoryExecution = this.withCellId(TrajectoryExecutionApi)
 
   readonly coordinateSystems = this.withCellId(CoordinateSystemsApi)
 
   readonly application = this.withCellId(ApplicationApi)
   readonly applicationGlobal = this.withUnwrappedResponsesOnly(ApplicationApi)
 
-  readonly motionGroupJogging = this.withCellId(MotionGroupJoggingApi)
+  readonly jogging = this.withCellId(JoggingApi)
 
   readonly virtualRobot = this.withCellId(VirtualRobotApi)
   readonly virtualRobotSetup = this.withCellId(VirtualRobotSetupApi)
   readonly virtualRobotMode = this.withCellId(VirtualRobotModeApi)
   readonly virtualRobotBehavior = this.withCellId(VirtualRobotBehaviorApi)
-
-  readonly libraryProgramMetadata = this.withCellId(LibraryProgramMetadataApi)
-  readonly libraryProgram = this.withCellId(LibraryProgramApi)
-  readonly libraryRecipeMetadata = this.withCellId(LibraryRecipeMetadataApi)
-  readonly libraryRecipe = this.withCellId(LibraryRecipeApi)
 
   readonly storeObject = this.withCellId(StoreObjectApi)
   readonly storeCollisionComponents = this.withCellId(

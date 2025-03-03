@@ -1,5 +1,6 @@
 import ReconnectingWebSocket, { type ErrorEvent } from "reconnecting-websocket"
-import type { MockNovaInstance } from "../mock/MockNovaInstance"
+import * as v2 from "./v2/mock/MockNovaInstance"
+import * as v1 from "./v1/mock/MockNovaInstance"
 
 export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   receivedFirstMessage?: MessageEvent
@@ -9,7 +10,7 @@ export class AutoReconnectingWebsocket extends ReconnectingWebSocket {
   constructor(
     targetUrl: string,
     readonly opts: {
-      mock?: MockNovaInstance
+      mock?: v1.MockNovaInstance | v2.MockNovaInstance
       onDispose?: () => void
     } = {},
   ) {

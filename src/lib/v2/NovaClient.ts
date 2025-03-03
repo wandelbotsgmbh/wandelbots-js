@@ -1,15 +1,14 @@
-import type { Configuration as BaseConfiguration } from "@wandelbots/wandelbots-api-client"
+import type { Configuration as BaseConfiguration } from "@wandelbots/nova-api/v2"
 import type { AxiosRequestConfig } from "axios"
 import axios, { isAxiosError } from "axios"
 import urlJoin from "url-join"
-import { loginWithAuth0 } from "./LoginWithAuth0.js"
-import { AutoReconnectingWebsocket } from "./lib/AutoReconnectingWebsocket"
-import { ConnectedMotionGroup } from "./lib/ConnectedMotionGroup"
-import { JoggerConnection } from "./lib/JoggerConnection"
-import { MotionStreamConnection } from "./lib/MotionStreamConnection"
-import { NovaCellAPIClient } from "./lib/NovaCellAPIClient"
-import { availableStorage } from "./lib/availableStorage.js"
+import { loginWithAuth0 } from "../../LoginWithAuth0"
+import { AutoReconnectingWebsocket } from "../AutoReconnectingWebsocket"
+import { availableStorage } from "../availableStorage"
+import { ConnectedMotionGroup } from "./ConnectedMotionGroup"
 import { MockNovaInstance } from "./mock/MockNovaInstance"
+import { MotionStreamConnection } from "./MotionStreamConnection"
+import { NovaCellAPIClient } from "./NovaCellAPIClient"
 
 export type NovaClientConfig = {
   /**
@@ -45,6 +44,11 @@ export type NovaClientConfig = {
 type NovaClientConfigWithDefaults = NovaClientConfig & { cellId: string }
 
 /**
+ * EXPERIMENTAL
+ *
+ * This client provides a starting point to migrate NOVA api v2.
+ * As v2 is still in development, this client has to be considered unstable
+ *
  * Client for connecting to a Nova instance and controlling robots.
  */
 export class NovaClient {
@@ -55,6 +59,7 @@ export class NovaClient {
   accessToken: string | null = null
 
   constructor(config: NovaClientConfig) {
+    console.warn("Using experimental NOVA v2 client")
     const cellId = config.cellId ?? "cell"
     this.config = {
       cellId,
@@ -71,7 +76,7 @@ export class NovaClient {
 
     // Set up Axios instance with interceptor for token fetching
     const axiosInstance = axios.create({
-      baseURL: urlJoin(this.config.instanceUrl, "/api/v1"),
+      baseURL: urlJoin(this.config.instanceUrl, "/api/v2"),
     })
 
     axiosInstance.interceptors.request.use(async (request) => {
@@ -204,21 +209,14 @@ export class NovaClient {
     return await MotionStreamConnection.open(this, motionGroupId)
   }
 
-  /**
-   * Connect to the jogging websocket(s) for a given motion group
-   */
-  async connectJogger(motionGroupId: string) {
-    return await JoggerConnection.open(this, motionGroupId)
-  }
-
   async connectMotionGroups(
     motionGroupIds: string[],
   ): Promise<ConnectedMotionGroup[]> {
-    const { instances } = await this.api.controller.listControllers()
+    const { controllers } = await this.api.controller.listControllers()
 
     return Promise.all(
       motionGroupIds.map((motionGroupId) =>
-        ConnectedMotionGroup.connect(this, motionGroupId, instances),
+        ConnectedMotionGroup.connect(this, motionGroupId, controllers),
       ),
     )
   }

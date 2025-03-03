@@ -1,5 +1,5 @@
 {
-  "name": "@wandelbots/wandelbots-js",
+  "name": "@wandelbots/nova-js",
   "type": "module",
   "version": "0.0.0-semantically-released",
   "description": "Official JS client for the Wandelbots API",
@@ -8,6 +8,14 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./v1": {
+      "import": "./dist/lib/v1/index.js",
+      "require": "./dist/lib/v1/index.cjs"
+    },
+    "./v2": {
+      "import": "./dist/lib/v2/index.js",
+      "require": "./dist/lib/v2/index.cjs"
     }
   },
   "main": "./dist/index.js",
@@ -19,16 +27,17 @@
   "scripts": {
     "dev:pack": "nodemon -w \".\" -e ts -i *.tgz -i dist -x \"npm run build && npm pack\"",
     "tsc": "tsc --pretty --noEmit",
-    "build": "tsup src/index.ts --format esm,cjs --clean --sourcemap --env.NOVA_AUTH0_DEV_CLIENT_ID=$NOVA_AUTH0_DEV_CLIENT_ID --env.NOVA_AUTH0_STG_CLIENT_ID=$NOVA_AUTH0_STG_CLIENT_ID --env.NOVA_AUTH0_PROD_CLIENT_ID=$NOVA_AUTH0_PROD_CLIENT_ID && tsc --declaration --emitDeclarationOnly",
+    "build": "tsup src/index.ts src/lib/v1/index.ts src/lib/v2/index.ts --format esm,cjs --clean --sourcemap --env.NOVA_AUTH0_DEV_CLIENT_ID=$NOVA_AUTH0_DEV_CLIENT_ID --env.NOVA_AUTH0_STG_CLIENT_ID=$NOVA_AUTH0_STG_CLIENT_ID --env.NOVA_AUTH0_PROD_CLIENT_ID=$NOVA_AUTH0_PROD_CLIENT_ID && tsc --declaration --emitDeclarationOnly",
     "test": "npm run build && vitest run",
     "prepare": "husky || true"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wandelbotsgmbh/wandelbots-js.git"
+    "url": "git+https://github.com/wandelbotsgmbh/nova-js.git"
   },
   "keywords": [
     "wandelbots",
+    "nova",
     "api"
   ],
   "author": "Wandelbots",
@@ -47,7 +56,7 @@
   "dependencies": {
     "@auth0/auth0-spa-js": "^2.1.3",
     "@types/three": "^0.172.0",
-    "@wandelbots/wandelbots-api-client": "^24.10.0",
+    "@wandelbots/nova-api": "^25.3.0-dev.29",
     "axios": "^1.7.2",
     "mobx": "^6.13.5",
     "path-to-regexp": "^8.2.0",

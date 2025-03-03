@@ -9,14 +9,13 @@ import type {
   RobotControllerStateSafetyStateEnum,
   RobotTcp,
   SafetySetup,
-} from "@wandelbots/wandelbots-api-client"
+} from "@wandelbots/nova-api/v1"
 import { makeAutoObservable, runInAction } from "mobx"
-import { Quaternion } from "three/src/math/Quaternion.js"
-import { Vector3 } from "three/src/math/Vector3.js"
-import type { NovaClient } from "../NovaClient"
-import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import { tryParseJson } from "./converters"
+import * as THREE from "three"
+import type { AutoReconnectingWebsocket } from "../AutoReconnectingWebsocket"
+import { tryParseJson } from "../converters"
 import { jointValuesEqual, tcpPoseEqual } from "./motionStateUpdate"
+import type { NovaClient } from "./NovaClient"
 
 const MOTION_DELTA_THRESHOLD = 0.0001
 
@@ -156,7 +155,6 @@ export class ConnectedMotionGroup {
   activationState: "inactive" | "activating" | "deactivating" | "active" =
     "inactive"
 
-
   constructor(
     readonly nova: NovaClient,
     readonly controller: ControllerInstance,
@@ -281,7 +279,7 @@ export class ConnectedMotionGroup {
 
   /** Gets the robot mounting position rotation in 3D viz coordinates */
   get mountingQuaternion() {
-    const rotationVector = new Vector3(
+    const rotationVector = new THREE.Vector3(
       this.mounting?.pose.orientation?.x || 0,
       this.mounting?.pose.orientation?.y || 0,
       this.mounting?.pose.orientation?.z || 0,
@@ -290,7 +288,7 @@ export class ConnectedMotionGroup {
     const magnitude = rotationVector.length()
     const axis = rotationVector.normalize()
 
-    return new Quaternion().setFromAxisAngle(axis, magnitude)
+    return new THREE.Quaternion().setFromAxisAngle(axis, magnitude)
   }
 
   /**

@@ -1,14 +1,10 @@
-import type {
-  Command,
-  Joints,
-  TcpPose,
-} from "@wandelbots/wandelbots-api-client"
+import type { Command, Joints, TcpPose } from "@wandelbots/nova-api/v1"
 import isEqual from "lodash-es/isEqual"
 import { Vector3 } from "three/src/math/Vector3.js"
-import type { NovaClient } from "../NovaClient"
-import type { AutoReconnectingWebsocket } from "./AutoReconnectingWebsocket"
-import { isSameCoordinateSystem, tryParseJson } from "./converters"
+import type { AutoReconnectingWebsocket } from "../AutoReconnectingWebsocket"
+import { isSameCoordinateSystem, tryParseJson } from "../converters"
 import type { MotionStreamConnection } from "./MotionStreamConnection"
+import type { NovaClient } from "./NovaClient"
 
 export type JoggerConnectionOpts = {
   /**
