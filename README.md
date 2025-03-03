@@ -1,14 +1,14 @@
-# @wandelbots/wandelbots-js
+# @wandelbots/nova-js
 
-[![NPM version](https://img.shields.io/npm/v/@wandelbots/wandelbots-js.svg)](https://npmjs.org/package/@wandelbots/wandelbots-js) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@wandelbots/wandelbots-js)](https://bundlephobia.com/package/@wandelbots/wandelbots-js) [![Release](https://github.com/wandelbotsgmbh/wandelbots-js/actions/workflows/release.yml/badge.svg)](https://github.com/wandelbotsgmbh/wandelbots-js/actions/workflows/release.yml)
+[![NPM version](https://img.shields.io/npm/v/@wandelbots/nova-js.svg)](https://npmjs.org/package/@wandelbots/nova-js) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/@wandelbots/nova-js)](https://bundlephobia.com/package/@wandelbots/nova-js) [![Release](https://github.com/wandelbotsgmbh/nova-js/actions/workflows/release.yml/badge.svg)](https://github.com/wandelbotsgmbh/nova-js/actions/workflows/release.yml)
 
 This library provides convenient access to the Wandelbots API from frontend JavaScript applications. Currently this contains typed methods for each API endpoint. We are also working on providing some higher level abstractions to manage the websocket connection state for tracking robot movement and handling jogging and Wandelscript program execution, which will be included in this package.
 
 ```bash
-npm install @wandelbots/wandelbots-js
+npm install @wandelbots/nova-js
 ```
 
-If you develop an react application we also provide a set of [react components](https://github.com/wandelbotsgmbh/wandelbots-js-react-components) which you can use together with this library.
+If you develop an react application we also provide a set of [react components](https://github.com/wandelbotsgmbh/nova-js-react-components) which you can use together with this library.
 
 ## Table of contents
 
@@ -30,7 +30,7 @@ If you develop an react application we also provide a set of [react components](
 The core of this package is the `NovaClient`, which represents a connection to a configured robot cell on a given Nova instance:
 
 ```ts
-import { NovaClient } from "@wandelbots/wandelbots-js"
+import { NovaClient } from "@wandelbots/nova-js"
 
 const nova = new NovaClient({
   instanceUrl: "https://example.instance.wandelbots.io",
@@ -89,7 +89,7 @@ const newJoints =
   activeRobot.rapidlyChangingMotionState.state.joint_position.joints
 ```
 
-To render a visual representation, you can use the `robot` component of the [react components](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/3d-view-robot--docs).
+To render a visual representation, you can use the `robot` component of the [react components](https://wandelbotsgmbh.github.io/nova-js-react-components/?path=/docs/3d-view-robot--docs).
 
 ## Execute Wandelscript
 
@@ -185,11 +185,11 @@ This will close any open websockets and ensure things are left in a good state.
 
 ### Jogging UI Panel
 
-You can use the [Jogging Panel](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/jogging-joggingpanel--docs) from the [react components](https://github.com/wandelbotsgmbh/wandelbots-js-react-components) library to get a easy to use visualization component.
+You can use the [Jogging Panel](https://wandelbotsgmbh.github.io/nova-js-react-components/?path=/docs/jogging-joggingpanel--docs) from the [react components](https://github.com/wandelbotsgmbh/nova-js-react-components) library to get a easy to use visualization component.
 
 ## Contributing
 
-To set up wandelbots-js for development, first clone the repo and run:
+To set up nova-js for development, first clone the repo and run:
 
 ```bash
 npm install
