@@ -8,7 +8,7 @@ This library provides convenient access to the Wandelbots API from frontend Java
 npm install @wandelbots/nova-js
 ```
 
-If you develop an react application we also provide a set of [react components](https://github.com/wandelbotsgmbh/nova-js-react-components) which you can use together with this library.
+If you develop an react application we also provide a set of [react components](https://github.com/wandelbotsgmbh/wandelbots-js-react-components) which you can use together with this library.
 
 ## Table of contents
 
@@ -89,7 +89,7 @@ const newJoints =
   activeRobot.rapidlyChangingMotionState.state.joint_position.joints
 ```
 
-To render a visual representation, you can use the `robot` component of the [react components](https://wandelbotsgmbh.github.io/nova-js-react-components/?path=/docs/3d-view-robot--docs).
+To render a visual representation, you can use the `robot` component of the [react components](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/3d-view-robot--docs).
 
 ## Execute Wandelscript
 
@@ -185,7 +185,7 @@ This will close any open websockets and ensure things are left in a good state.
 
 ### Jogging UI Panel
 
-You can use the [Jogging Panel](https://wandelbotsgmbh.github.io/nova-js-react-components/?path=/docs/jogging-joggingpanel--docs) from the [react components](https://github.com/wandelbotsgmbh/nova-js-react-components) library to get a easy to use visualization component.
+You can use the [Jogging Panel](https://wandelbotsgmbh.github.io/wandelbots-js-react-components/?path=/docs/jogging-joggingpanel--docs) from the [react components](https://github.com/wandelbotsgmbh/wandelbots-js-react-components) library to get a easy to use visualization component.
 
 ## Contributing
 
